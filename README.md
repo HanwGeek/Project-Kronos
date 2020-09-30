@@ -11,4 +11,8 @@ Project Kronos with a brilliant team.
 
 ## Database
 * Shapefile
-* PostGreSQL
+* PostgreSQL
+
+## Contributors
+@[HanwGeek](https://github.com/HanwGeek/) @[Nithouson](https://github.com/Nithouson) @[sunshineYin](https://github.com/sunshineYin) @[changxiaoyin](https://github.com/changxiaoyin/)
+
