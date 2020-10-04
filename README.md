@@ -10,6 +10,7 @@ WFS标准: <https://www.ogc.org/standards/wfs>
 ## Front End
 
 * Vue + ElementUI/Vuetify + Openlayers/Mapbox (已遵照OGC标准)
+* Openlayers WFS获取/编辑/删除 <https://zhuanlan.zhihu.com/p/83930840>
 
 ## Back End
 
