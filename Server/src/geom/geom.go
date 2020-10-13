@@ -18,3 +18,5 @@ const (
 	// KrGeometryCollection is a collection of heterogeneus geometries
 	KrGeometryCollection = 8
 )
+
+
