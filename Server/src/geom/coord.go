@@ -12,4 +12,3 @@ type Coord3D struct {
 	y float32
 	z float32
 }
-
