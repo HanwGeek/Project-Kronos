@@ -1,5 +1,0 @@
-package ogcservice
-
-func GetLayers() {
-
-}
