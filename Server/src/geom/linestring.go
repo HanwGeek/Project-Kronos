@@ -23,7 +23,7 @@ func (l LineString) GetPoint(n int) Coord {
 // Change the point with index n
 func (l *LineString) EditPoint(n int, _x float32, _y float32) {
 	m := l.NPoints()
-	if n > m - 1 {
+	if n > m-1 {
 		return
 	}
 	l.pos[n] = Coord{_x, _y}
@@ -48,7 +48,7 @@ func (l *LineString) InsertPoint(n int, _x float32, _y float32) {
 // Delete a point at index n
 func (l *LineString) DeletePoint(n int) {
 	m := l.NPoints()
-	if n > m - 1 {
+	if n > m-1 {
 		return
 	}
 	l.pos = append(l.pos[:n], l.pos[n+1:]...)

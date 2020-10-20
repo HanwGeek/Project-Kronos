@@ -19,7 +19,7 @@ const (
 	KrGeometryCollection = 8
 )
 
-type Geometry interface{
+type Geometry interface {
 	GeomType() int
 }
 
