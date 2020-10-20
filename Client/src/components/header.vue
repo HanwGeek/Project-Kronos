@@ -1,13 +1,5 @@
 <template>
   <div id='header'>
-    <div>
-      <el-button 
-        @click="updateMenuState"
-        :type="btnType" 
-        icon="el-icon-s-operation" 
-        size="small" 
-        circle></el-button>
-    </div>
     <div id='title'>{{title}}</div>
     <div id='nav'>
       <a id='avatar' href='https://hanwgeek.github.io/'>

@@ -39,8 +39,8 @@ export default {
       type: '',
       map: null,
       Layers: null,
-      draw: new Draw(),
-      snap: new Snap(),
+      draw: null,
+      snap: null,
       sourceChosen: null,
       layerChosen: null,
       selectedFeatures: null,
@@ -85,14 +85,14 @@ export default {
       //实现鼠标点击选择
       var select = new Select();
       this.map.addInteraction(select);
-      this.selectedFeatures = Select.getFeatures();
+      this.selectedFeatures = select.getFeatures();
 
       //鼠标框选
       var dragBox = new DragBox();
 
       this.map.addInteraction(dragBox);
 
-      dragBox.on('boxend', function () {
+      dragBox.on('boxend', () => {
       // 视图没有进行旋转变化时，框选范围可以视为和实际范围一致，因此矢量要素和框选相交时可以视为被选中
       var rotation = this.map.getView().getRotation();
       var oblique = rotation % (Math.PI / 2) !== 0;
@@ -119,8 +119,8 @@ export default {
       });
 
       //点击、绘制新的方框时清空选择列表
-      dragBox.on('boxstart', function () {
-      this.selectedFeatures.clear();
+      dragBox.on('boxstart', () => {
+        this.selectedFeatures.clear();
       });
 
 
