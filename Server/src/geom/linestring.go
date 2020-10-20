@@ -4,6 +4,10 @@ type LineString struct {
 	pos []Coord
 }
 
+func (l LineString) GeomType() int {
+	return KrLineString
+}
+
 func (l LineString) NPoints() int {
 	return len(l.pos)
 }
@@ -17,21 +21,21 @@ func (l LineString) GetPoint(n int) Coord {
 }
 
 // Change the point with index n
-func (l LineString) EditPoint(n int, _x float32, _y float32) {
+func (l *LineString) EditPoint(n int, _x float32, _y float32) {
 	m := l.NPoints()
-	if n > m-1 {
+	if n > m - 1 {
 		return
 	}
 	l.pos[n] = Coord{_x, _y}
 }
 
 // Add a point at the end
-func (l LineString) AddPoint(_x float32, _y float32) {
+func (l *LineString) AddPoint(_x float32, _y float32) {
 	l.pos = append(l.pos, Coord{_x, _y})
 }
 
 // Insert a point at index n
-func (l LineString) InsertPoint(n int, _x float32, _y float32) {
+func (l *LineString) InsertPoint(n int, _x float32, _y float32) {
 	m := l.NPoints()
 	if n > m {
 		return
@@ -42,9 +46,9 @@ func (l LineString) InsertPoint(n int, _x float32, _y float32) {
 }
 
 // Delete a point at index n
-func (l LineString) DeletePoint(n int) {
+func (l *LineString) DeletePoint(n int) {
 	m := l.NPoints()
-	if n > m {
+	if n > m - 1 {
 		return
 	}
 	l.pos = append(l.pos[:n], l.pos[n+1:]...)
