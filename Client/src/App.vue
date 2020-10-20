@@ -1,23 +1,22 @@
 <template>
   <div id="app">
     <Header />
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <MapLayer />
     <Footer />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
+import MapLayer from '@/components/maplayer'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld,
     Header,
     Footer,
+    MapLayer
   }
 }
 </script>
