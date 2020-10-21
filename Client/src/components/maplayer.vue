@@ -2,7 +2,7 @@
   <div>
     <div id="map"></div>
     <input type="text" v-model="aaa">
-    <div>测试用：{{ aaa }}</div>
+    <div>测试用：{{ type }}</div>
     <label>Shape type &nbsp;</label>
     <select v-model="type">
         <option value="Point">Point</option>
@@ -47,7 +47,8 @@ export default {
     }
   },
   created () {
-
+    this.draw = new Draw();
+    this.snap = new Snap();
   },
   mounted () {
     this.init();
@@ -169,8 +170,9 @@ export default {
     //监听要绘制的矢量要素类别是否发生了变化，发生变化时将绘制控件添加到地图上去
     type:function(val){
       this.type = val;
-      this.type= 'aaa';
-        this.AddInteraction();
+      this.map.removeInteraction(this.draw);
+      this.map.removeInteraction(this.snap);
+      this.AddInteraction();
     }
 
   }
@@ -184,6 +186,10 @@ export default {
   height: 700px;
   left: 0;
   z-index: 5;
+}
+#ol-dragbox {
+  background-color: rgba(255,255,255,0.4);
+  border-color: rgba(100,150,0,1);
 }
 </style>
 
