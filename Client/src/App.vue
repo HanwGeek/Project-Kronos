@@ -1,7 +1,8 @@
 <template>
   <div id="app">
     <Header />
-    <MapLayer />
+    <!-- <MapLayer /> -->
+        <router-view/>
     <Footer />
   </div>
 </template>
@@ -9,15 +10,13 @@
 <script>
 import Header from '@/components/header'
 import Footer from '@/components/footer'
-import MapLayer from '@/components/maplayer'
 
 export default {
   name: 'App',
   components: {
     Header,
     Footer,
-    MapLayer
-  }
+  },
 }
 </script>
 
