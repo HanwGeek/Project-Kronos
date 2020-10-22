@@ -1,5 +1,5 @@
 <template>
-<div class="auth" :style="{height:clientHeight + 'px'}">
+<div class="auth" :style="styles">
     <el-card>
       <div slot="header">
         请登录
@@ -20,8 +20,11 @@
 </template>
 
 <script>
+import picture from '@/assets/background.jpg'
+
 export default {
   name: 'auth',
+  backImg: `url(${picture})`,
   data () {
     return {
       clientHeight: '',
@@ -31,11 +34,22 @@ export default {
       }
     }
   },
+  computed: {
+    styles: function() {
+      return {
+        backgroundImage: `url(${picture})`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        height: this.clientHeight + 'px'
+      }
+    }
+  },
   mounted() {
-    this.clientHeight = `${document.documentElement.clientHeight}` - 120;
+    this.clientHeight = `${document.documentElement.clientHeight}` - 85;
   },
   methods: {
     login() {
+      this.$bus.$emit("showMenuButton");
       this.$router.push({
         name: 'map'
       });

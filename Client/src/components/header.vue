@@ -1,5 +1,16 @@
 <template>
   <div id='header'>
+    <transition name="el-fade-in-linear">
+    <div>
+      <el-button
+        v-show="show" 
+        @click="updateMenuState"
+        :type="btnType" 
+        icon="el-icon-s-operation" 
+        size="small" 
+        circle></el-button>
+    </div>
+    </transition>
     <div id='title'>{{title}}</div>
     <div id='nav'>
       <a id='avatar' href='https://hanwgeek.github.io/'>
@@ -29,9 +40,15 @@ export default {
       ava_guo: require("../assets/guo.jpg"),
       ava_yin: require("../assets/yin.jpg"),
       ava_chang: require("../assets/chang.jpg"),
+      show: false,
       isShowAside: false,
       btnType: 'info'
     }
+  },
+  created() {
+    this.$bus.$on("showMenuButton", () => {
+      this.show = true;
+    })
   },
   methods: {
     updateMenuState() {
