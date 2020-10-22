@@ -26,4 +26,4 @@ func (feat Feature) EditFeature() {
 
 }
 
-// Test for push.
+// Test for push and push to.
