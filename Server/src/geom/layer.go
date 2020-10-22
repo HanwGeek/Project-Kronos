@@ -3,7 +3,7 @@ package geom
 // Layer means a collection of geoms
 type Layer struct {
 	geomtype int
-	feat     []Geometry
+	feat     []Feature
 }
 
 func (l Layer) GetGeomType() int {
@@ -18,7 +18,7 @@ func (l Layer) FeatureCount() int {
 	return len(l.feat)
 }
 
-func (l Layer) GetFeature(n int) Geometry {
+func (l Layer) GetFeature(n int) Feature {
 	m := len(l.feat)
 	if n > m-1 {
 		return l.feat[m-1]
@@ -26,15 +26,27 @@ func (l Layer) GetFeature(n int) Geometry {
 	return l.feat[n]
 }
 
-// Add a feature at the end
-func (l *Layer) AddFeature(g Geometry) {
-	if l.geomtype != g.GeomType() {
+// Add a feature
+func (l *Layer) AddFeature(f Feature) {
+	if l.geomtype != f.geom.GeomType() {
 		return
 	}
-	l.feat = append(l.feat, g)
+	l.feat = append(l.feat, f)
 }
 
-// Delete a point at index n
+// Replace a feature at index n
+func (l *Layer) ReplaceFeature(n int, f Feature) {
+	if l.geomtype != f.geom.GeomType() {
+		return
+	}
+	m := len(l.feat)
+	if n > m-1 {
+		return
+	}
+	l.feat[n]=f
+}
+
+// Delete a feature at index n
 func (l *Layer) DeleteFeature(n int) {
 	m := len(l.feat)
 	if n > m-1 {
