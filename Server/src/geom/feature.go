@@ -25,3 +25,5 @@ func (feat Feature) GetAttributes() map[string]interface{} {
 func (feat Feature) EditFeature() {
 
 }
+
+// Test for push.
