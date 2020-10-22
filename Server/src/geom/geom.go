@@ -25,14 +25,20 @@ type Geometry interface {
 
 /*
 func main(){
+	rand.Seed(time.Now().UnixNano())
 	l:=Layer{geomtype: KrPoint}
 	fmt.Println(l.IsEmpty())
 	p:=Point{Coord{3,5}}
 	fmt.Println(p.GeomType())
 	fmt.Println(l.GetGeomType())
-	l.AddFeature(p)
+	fp:=NewFeatureByGeom(p)
+	fp.SetAttribute("Area",500)
+	fp.SetAttribute("Name","Hanwgeek's Villa")
+	l.AddFeature(*fp)
 	fmt.Println(l.feat)
 	fmt.Println(l.FeatureCount())
+	fv:=l.GetFeature(0)
+	fmt.Println(fv)
 
 	l2:=Layer{geomtype: KrPolygon}
 	po:=Polygon{}
@@ -40,11 +46,11 @@ func main(){
 	innr:=LineString{[]Coord{Coord{0.5,0.5},Coord{0.3,0.3},Coord{0.3,0.5}}}
 	po.AddRing(outr)
 	po.AddRing(innr)
-	l2.AddFeature(po)
-	l2.AddFeature(p)
+	l2.AddFeature(*NewFeatureByGeom(po))
+	l2.AddFeature(*NewFeatureByGeom(p))
 	fmt.Println(l2.FeatureCount())
 	fmt.Println(l2.GetFeature(0))
-	npo:=l2.GetFeature(0).(Polygon)
+	npo:=l2.GetFeature(0).geom.(Polygon)
 	fmt.Println(npo.NInnerRings())
 	npo.DeleteRing(1)
 	fmt.Println(npo)
