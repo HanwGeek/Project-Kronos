@@ -7,6 +7,16 @@
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= htmlWebpackPlugin.options.title %></title>
   </head>
+  <style type="text/css">
+    /*
+      找到html标签、body标签，和挂载的标签
+      都给他们统一设置样式
+    */
+      html,body,#app,.el-container{
+            padding: 0px;
+            margin: 0px;
+        }
+    </style>
   <body>
     <noscript>
       <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
