@@ -1,3 +1,5 @@
+package geom
+
 // Feature means a combination of geometry and attributes.
 type Feature struct {
 	id int
