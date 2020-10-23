@@ -25,8 +25,7 @@ type Geometry interface {
 
 /*
 func main(){
-	rand.Seed(time.Now().UnixNano())
-	l:=Layer{geomtype: KrPoint}
+	l:=NewLayer("test1",KrPoint)
 	fmt.Println(l.IsEmpty())
 	p:=Point{Coord{3,5}}
 	fmt.Println(p.GeomType())
@@ -40,7 +39,7 @@ func main(){
 	fv:=l.GetFeature(0)
 	fmt.Println(fv)
 
-	l2:=Layer{geomtype: KrPolygon}
+	l2:=NewLayer("test2",KrPolygon)
 	po:=Polygon{}
 	outr:=LineString{[]Coord{Coord{1,2},Coord{4,7},Coord{-3,-3}}}
 	innr:=LineString{[]Coord{Coord{0.5,0.5},Coord{0.3,0.3},Coord{0.3,0.5}}}
