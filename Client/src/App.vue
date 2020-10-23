@@ -1,33 +1,30 @@
 <template>
   <div id="app">
     <Header />
+    
     <!-- <MapLayer /> -->
-        <!-- <router-view/> -->
-      <el-container>
-        <el-aside width="20vw" v-show="show">
-         <el-collapse-transition> 
-          <SideBar />
-         </el-collapse-transition>
-        </el-aside>
-        <el-main>
-          <router-view/>
-        </el-main>
-      </el-container>
-    <Footer />
+    <!-- <SideBar /> -->
+    <router-view/>
+ <v-footer padless>
+    <v-col
+      class="text-center"
+      cols="12"
+    >
+      Powered by Vue.js & Gin
+    </v-col>
+  </v-footer>
   </div>
 </template>
 
 <script>
 import Header from '@/components/header'
-import Footer from '@/components/footer'
-import SideBar from '@/components/sidebar'
+// import SideBar from '@/components/sidebar'
 
 export default {
   name: 'App',
   components: {
     Header,
-    Footer,
-    SideBar
+    // SideBar
   },
   data () {
     return {
@@ -55,13 +52,9 @@ export default {
   height: 100%;
 }
 
-.el-container {
-  padding: 0px;
-  margin: 0px;
-}
-
-.el-main {
-  padding: 0px;
-  margin: 0px;
+.v-footer {
+  font-size: 4px;
+  /* padding: 0;
+  margin: 0; */
 }
 </style>

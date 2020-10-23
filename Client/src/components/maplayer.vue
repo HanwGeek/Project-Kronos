@@ -44,6 +44,8 @@ export default {
       sourceChosen: null,
       layerChosen: null,
       selectedFeatures: null,
+      layers: [],
+      visible: []
     }
   },
   created () {
@@ -62,7 +64,7 @@ export default {
       this.layerChosen = new VectorLayer({
         source:this.sourceChosen
       });
-      this.Layers = new Array(this.osmLayer,this.layerChosen);
+      this.Layers = [this.osmLayer,this.layerChosen];
       this.map = new Map({
         layers: this.Layers,
         target: 'map',
@@ -76,7 +78,7 @@ export default {
       //Map对象中加入Modify控件后，就可以使用鼠标对已绘制的图形进行编辑。除了可以用鼠标拖拽图形节点外，
       //也可以使用鼠标拖拽直线，这将会拖拽出新的节点。如果想删除某个节点，只需要按住键盘的Alt键，然后鼠标点击该节点即可
       var modify = new Modify({
-      source: this.sourceChosen
+        source: this.sourceChosen
       });
 
       // 将Modify控件加入到Map对象中

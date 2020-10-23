@@ -1,6 +1,9 @@
 <template>
-  <div id='header'>
-    <transition name="el-fade-in-linear">
+  <!-- <div id='header'> -->
+    <v-toolbar dense>
+      <v-toolbar-title>KRONOS</v-toolbar-title>
+      <v-spacer></v-spacer>
+    <!-- <transition name="el-fade-in-linear">
     <div>
       <el-button
         v-show="show" 
@@ -10,8 +13,7 @@
         size="small" 
         circle></el-button>
     </div>
-    </transition>
-    <div id='title'>{{title}}</div>
+    </transition> -->
     <div id='nav'>
       <a id='avatar' href='https://hanwgeek.github.io/'>
         <img :src='avatar'>
@@ -26,7 +28,8 @@
         <img :src='ava_guo'>
       </a>
     </div>
-  </div>
+    </v-toolbar>
+  <!-- </div> -->
 </template>
 
 
@@ -86,27 +89,26 @@ export default {
   /* height: 40px; */
 }
 #avatar img{
-  position: fixed;
   right: 15px;
-  height: 40px;
+  height: 35px;
   border-radius: 50%;
 }
 #avatar_2 img{
   position: fixed;
   right: 65px;
-  height: 40px;
+  height: 35px;
   border-radius: 50%;
 }
 #avatar_3 img{
   position: fixed;
   right: 115px;
-  height: 40px;
+  height: 35px;
   border-radius: 50%;
 }
 #avatar_4 img{
   position: fixed;
   right: 165px;
-  height: 40px;
+  height: 35px;
   border-radius: 50%;
 }
 </style>

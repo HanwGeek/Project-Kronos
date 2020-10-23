@@ -1,6 +1,30 @@
 <template>
 <div class="auth" :style="styles">
-    <el-card>
+  <v-card
+    class="mx-auto"
+    min-width="450px"
+    outlined
+  >
+    <v-form v-model="valid">
+    <v-container>
+      <v-row>
+        <v-col
+          cols="12"
+          md="12"
+        >
+          <v-text-field
+            v-model="firstname"
+            :rules="nameRules"
+            :counter="10"
+            label="First name"
+            required
+          ></v-text-field>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-form>
+  </v-card>
+    <!-- <el-card>
       <div slot="header">
         请登录
       </div>
@@ -15,7 +39,7 @@
           <el-button type="primary" @click="login">登录</el-button>
         </el-form-item>
       </el-form>
-    </el-card>
+    </el-card> -->
 </div>
 </template>
 
