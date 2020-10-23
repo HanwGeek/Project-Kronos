@@ -1,5 +1,3 @@
-package geom
-
 // Feature means a combination of geometry and attributes.
 type Feature struct {
 	id int
@@ -8,11 +6,15 @@ type Feature struct {
 }
 
 func NewFeatureByGeom(geom_ Geometry) *Feature {
-	return &Feature{rand.Intn(1073741824),geom_, make(map[string]interface{})}
+	return &Feature{-1,geom_, make(map[string]interface{})}
 }
 
 func (feat Feature) GetID() int {
 	return feat.id
+}
+
+func (feat *Feature) SetID(id_ int) {
+    feat.id=id_
 }
 
 // The function to get the feature's type.
