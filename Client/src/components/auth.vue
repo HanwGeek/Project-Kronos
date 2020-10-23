@@ -50,6 +50,10 @@ export default {
   methods: {
     login() {
       this.$bus.$emit("showMenuButton");
+      this.$message({
+          message: '登陆成功!',
+          type: 'success'
+        });
       this.$router.push({
         name: 'map'
       });
