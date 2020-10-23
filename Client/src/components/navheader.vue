@@ -1,43 +1,39 @@
 <template>
-  <!-- <div id='header'> -->
-    <v-toolbar dense>
+  <div id='header'>
+    <v-navigation-drawer
+      v-model="drawer"
+      app>
+    </v-navigation-drawer>
+
+    <v-app-bar app>
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>KRONOS</v-toolbar-title>
-      <v-spacer></v-spacer>
-    <!-- <transition name="el-fade-in-linear">
-    <div>
-      <el-button
-        v-show="show" 
-        @click="updateMenuState"
-        :type="btnType" 
-        icon="el-icon-s-operation" 
-        size="small" 
-        circle></el-button>
-    </div>
-    </transition> -->
-    <div id='nav'>
-      <a id='avatar' href='https://hanwgeek.github.io/'>
-        <img :src='avatar'>
-      </a>
-      <a id='avatar_2' href='#'>
-        <img :src='ava_chang'>
-      </a>
-      <a id='avatar_3' href='#'>
-        <img :src='ava_yin'>
-      </a>
-      <a id='avatar_4' href='#'>
-        <img :src='ava_guo'>
-      </a>
-    </div>
-    </v-toolbar>
-  <!-- </div> -->
+
+        <!-- <a id='avatar' href='https://hanwgeek.github.io/'>
+          <img :src='avatar'>
+        </a>
+        <a id='avatar_2' href='#'>
+          <img :src='ava_chang'>
+        </a>
+        <a id='avatar_3' href='#'>
+          <img :src='ava_yin'>
+        </a>
+        <a id='avatar_4' href='#'>
+          <img :src='ava_guo'>
+        </a> -->
+    </v-app-bar>
+
+
+  </div>
 </template>
 
 
 <script>
 export default {
-  name: 'Header',
+  name: 'NavHeader',
   data () {
     return {
+      drawer: null,
       title: 'KRONOS',
       avatar: require("../assets/wang.jpeg"),
       ava_guo: require("../assets/guo.jpg"),

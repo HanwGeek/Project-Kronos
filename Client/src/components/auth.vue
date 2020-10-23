@@ -1,45 +1,49 @@
 <template>
 <div class="auth" :style="styles">
   <v-card
-    class="mx-auto"
     min-width="450px"
     outlined
-  >
-    <v-form v-model="valid">
+    elevation="2">
+    <v-card-title> 请登录 </v-card-title>
+<v-form v-model="valid">
     <v-container>
-      <v-row>
-        <v-col
-          cols="12"
-          md="12"
-        >
-          <v-text-field
-            v-model="firstname"
-            :rules="nameRules"
-            :counter="10"
-            label="First name"
-            required
-          ></v-text-field>
-        </v-col>
+      <v-row
+        align="center">
+      <v-col
+        align-self="center"
+        cols="10"
+        offset="1">
+       <v-text-field
+        label="Username"
+        v-model="auth.username"
+        ></v-text-field> 
+      </v-col>
       </v-row>
+      <v-row
+        align="center">
+      <v-col
+        cols="10"
+        offset="1">
+       <v-text-field
+        label="Password"
+        v-model="auth.password"
+        :append-icon="showEye ? 'mdi-eye' : 'mdi-eye-off'"
+        @click:append="showEye = !showEye"
+        :type="showEye ? 'text' : 'password'"
+        ></v-text-field> 
+      </v-col>
+      </v-row>
+      <v-card-actions>
+        <v-btn 
+          color="primary"
+          @click="login"
+          block>
+          Login
+        </v-btn>
+      </v-card-actions>
     </v-container>
   </v-form>
   </v-card>
-    <!-- <el-card>
-      <div slot="header">
-        请登录
-      </div>
-      <el-form :model="auth">
-        <el-form-item>
-          <el-input v-model="auth.username" placeholder="用户名"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-input v-model="auth.password" placeholder="密码" show-password></el-input>
-        </el-form-item>
-         <el-form-item>
-          <el-button type="primary" @click="login">登录</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card> -->
 </div>
 </template>
 
@@ -52,6 +56,7 @@ export default {
   data () {
     return {
       clientHeight: '',
+      showEye: false,
       auth:{
         username: '',
         password: ''
@@ -74,10 +79,6 @@ export default {
   methods: {
     login() {
       this.$bus.$emit("showMenuButton");
-      this.$message({
-          message: '登陆成功!',
-          type: 'success'
-        });
       this.$router.push({
         name: 'map'
       });
