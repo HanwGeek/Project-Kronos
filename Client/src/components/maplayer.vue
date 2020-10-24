@@ -24,7 +24,6 @@ import Map from 'ol/Map'
 import OpenLayersView from 'ol/View'
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer'
 import {OSM, Vector as VectorSource} from 'ol/source'
-//import control from 'ol/control'
 import {Draw, Modify,Snap,Select,DragBox} from 'ol/interaction';
 
 export default {
@@ -66,6 +65,7 @@ export default {
       });
       this.Layers = [this.osmLayer,this.layerChosen];
       this.map = new Map({
+        controls: [],
         layers: this.Layers,
         target: 'map',
         view: new OpenLayersView({
