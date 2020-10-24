@@ -6,18 +6,55 @@
       permanent
       expand-on-hover
       app>
-      
+
     <v-list-item class="px-2">
       <v-list-item-avatar>
         <v-img :src="avatar"></v-img>
       </v-list-item-avatar>
       <v-list-item-title>Layers</v-list-item-title>
     </v-list-item>
-
+    
     <v-divider></v-divider>
 
-    <v-list>
-
+    <v-list v-show="show">
+      <v-list-item-group v-model="selected">
+        <v-list-item
+          v-for="(layer, i) in layers"
+          input-value="false"
+          :key="i">
+        <v-list-item-action>
+          <v-btn 
+            @click="changeVisible(i)"
+            icon>
+            <v-icon
+              color="blue darken-2"
+              v-if="layer.show">
+              mdi-eye
+            </v-icon>
+            <v-icon
+              v-else>
+              mdi-eye-off
+            </v-icon>
+          </v-btn>
+        </v-list-item-action>
+        <v-list-item-title v-text="layer.name"></v-list-item-title>
+        <v-list-item-action>
+          <v-btn
+            @click="changeEdit(i)" 
+            icon>
+             <v-icon
+              color="blue darken-2"
+              v-if="layer.edit">
+              mdi-pencil
+            </v-icon>
+            <v-icon
+              v-else>
+              mdi-pencil
+            </v-icon>
+          </v-btn>
+        </v-list-item-action>
+        </v-list-item>
+      </v-list-item-group>
     </v-list>
 
     </v-navigation-drawer>
@@ -58,6 +95,19 @@ export default {
     return {
       drawer: null,
       show: false,
+      selected: null,
+      layers: [
+        {
+          name: "crop",
+          show: false,
+          edit: false
+        },
+        {
+          name: "landuse",
+          show: false,
+          edit: false
+        }
+      ],
       title: 'KRONOS',
       avatar: require("../assets/greek.jpeg"),
       avatar_wang: require("../assets/wang.jpeg"),
@@ -65,7 +115,6 @@ export default {
       ava_yin: require("../assets/yin.jpg"),
       ava_chang: require("../assets/chang.jpg"),
       isShowAside: false,
-      btnType: 'info'
     }
   },
   created() {
@@ -80,6 +129,12 @@ export default {
       this.$bus.$emit("showAside", this.isShowAside);
       this.btnType = this.btnType == "info" ? "primary" : "info";
     },
+    changeVisible(idx) {
+      this.layers[idx].show = !this.layers[idx].show;
+    },
+    changeEdit(idx) {
+      this.layers[idx].edit = !this.layers[idx].edit;
+    }
   }
 }
 </script>
