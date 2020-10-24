@@ -5,7 +5,7 @@
     outlined
     elevation="2">
     <v-card-title> 请登录 </v-card-title>
-  <v-form v-model="auth">
+  <v-form>
     <v-container>
       <v-row
         align="center">
