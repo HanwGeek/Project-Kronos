@@ -2,15 +2,33 @@
   <div id='header'>
     <v-navigation-drawer
       v-model="drawer"
+      :width="show ? 256 : 56"
+      permanent
+      expand-on-hover
       app>
+      
+    <v-list-item class="px-2">
+      <v-list-item-avatar>
+        <v-img :src="avatar"></v-img>
+      </v-list-item-avatar>
+      <v-list-item-title>Layers</v-list-item-title>
+    </v-list-item>
+
+    <v-divider></v-divider>
+
+    <v-list>
+
+    </v-list>
+
     </v-navigation-drawer>
 
-    <v-app-bar app>
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+    <v-app-bar 
+      short
+      app>
       <v-toolbar-title>KRONOS</v-toolbar-title>
 
         <!-- <a id='avatar' href='https://hanwgeek.github.io/'>
-          <img :src='avatar'>
+          <img :src='avatar_wang'>
         </a>
         <a id='avatar_2' href='#'>
           <img :src='ava_chang'>
@@ -29,25 +47,32 @@
 
 
 <script>
+// import SideBar from "@/components/sidebar"
+
 export default {
   name: 'NavHeader',
+  components: {
+    // SideBar
+  },
   data () {
     return {
       drawer: null,
+      show: false,
       title: 'KRONOS',
-      avatar: require("../assets/wang.jpeg"),
+      avatar: require("../assets/greek.jpeg"),
+      avatar_wang: require("../assets/wang.jpeg"),
       ava_guo: require("../assets/guo.jpg"),
       ava_yin: require("../assets/yin.jpg"),
       ava_chang: require("../assets/chang.jpg"),
-      show: false,
       isShowAside: false,
       btnType: 'info'
     }
   },
   created() {
+    this.show = false;
     this.$bus.$on("showMenuButton", () => {
       this.show = true;
-    })
+    });
   },
   methods: {
     updateMenuState() {
