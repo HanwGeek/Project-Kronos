@@ -10,7 +10,6 @@
     </v-col>
   </v-footer> -->
    
-
     <v-main>
       <router-view/>
     </v-main>
