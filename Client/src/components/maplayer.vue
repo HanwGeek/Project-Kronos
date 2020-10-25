@@ -2,11 +2,10 @@
   <div>
     <div id="map"></div>
     <v-layout class="tool-panel">
-    <v-hover v-slot="{ hover }">
     <div>
     <v-fab-transition>
       <v-btn
-        v-show="hover"
+        v-show="add"
         color="green"
         fab
         dark
@@ -16,7 +15,7 @@
     </v-fab-transition>
     <v-fab-transition>
       <v-btn
-        v-show="hover"
+        v-show="add"
         color="blue"
         fab
         dark
@@ -26,7 +25,7 @@
     </v-fab-transition>
     <v-fab-transition>
       <v-btn
-        v-show="hover"
+        v-show="add"
         color="orange"
         fab
         dark
@@ -36,16 +35,23 @@
     </v-fab-transition>
     <v-fab-transition>
       <v-btn
-        v-show="add"
+        v-show="enableEdit"
+        @click="addFeature"
         color="pink"
         fab
         dark
         small>
-          <v-icon>mdi-plus</v-icon>
+          <v-icon
+            v-if="add">
+            mdi-content-save
+          </v-icon>
+          <v-icon
+            v-else>
+            mdi-plus
+          </v-icon>
       </v-btn>
     </v-fab-transition>
     </div>
-    </v-hover>
     </v-layout>
 
     <!-- <div>测试用：{{ type }}</div>
@@ -73,7 +79,7 @@ import {bbox as bboxStrategy} from 'ol/loadingstrategy';
 import {Stroke, Style} from 'ol/style';
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer'
 import {OSM, Vector as VectorSource} from 'ol/source'
-import {Draw, Modify,Snap,Select,DragBox} from 'ol/interaction';
+import {Draw, Modify, Snap} from 'ol/interaction';
 
 export default {
   name: 'MapLayer',
@@ -85,10 +91,13 @@ export default {
       layerCnt: 3,
 
       add: false,
+      enableEdit: false,
+      curIdx: 0,
       clientHeight: 0,
       type: '',
       draw: null,
       snap: null,
+      modify: null,
       sourceChosen: null,
       layerChosen: null,
       selectedFeatures: null,
@@ -111,13 +120,14 @@ export default {
     });
 
     this.$bus.$on("change-edit", (idx) => {
+      this.curIdx = idx;
       if (this.layers[idx].edit == false) {
         this.layers[idx].edit = true;
-        this.add = true;
-        this.edit(idx);
+        this.enableEdit = true;
+        this.edit();
       } else {
         this.layers[idx].edit = false;
-        this.add = false;
+        this.enableEdit = false;
         this.save();
       }
     })
@@ -173,67 +183,85 @@ export default {
         })
       });
     },
-    edit(idx) {
-
-      this.sourceChosen = this.mapLayers[idx].getSource();
-      this.layerChosen = this.mapLayers[idx];
+    edit() {
+      this.enableModify()
 
       // this.draw = new Draw();
       // this.snap = new Snap();
 
+
+      // //点选、框选功能实现
+      // //实现鼠标点击选择
+      // var select = new Select();
+      // this.map.addInteraction(select);
+      // this.selectedFeatures = select.getFeatures();
+
+      // //鼠标框选
+      // var dragBox = new DragBox();
+
+      // this.map.addInteraction(dragBox);
+
+      // dragBox.on('boxend', () => {
+      // // 视图没有进行旋转变化时，框选范围可以视为和实际范围一致，因此矢量要素和框选相交时可以视为被选中
+      // var rotation = this.map.getView().getRotation();
+      // var oblique = rotation % (Math.PI / 2) !== 0;
+      // var candidateFeatures = oblique ? [] : this.selectedFeatures;
+      // var extent = dragBox.getGeometry().getExtent();
+      // this.sourceChosen.forEachFeatureIntersectingExtent(extent, function (feature) {
+      //   candidateFeatures.push(feature);
+      // });
+
+      // // 如果视图存在旋转变化，需要先把方框和要素同时旋转
+      // if (oblique) {
+      //     var anchor = [0, 0];
+      //     var geometry = dragBox.getGeometry().clone();
+      //     geometry.rotate(-rotation, anchor);
+      //     var extent$1 = geometry.getExtent();
+      //     candidateFeatures.forEach(function (feature) {
+      //     var geometry = feature.getGeometry().clone();
+      //     geometry.rotate(-rotation, anchor);
+      //     if (geometry.intersectsExtent(extent$1)) {
+      //         this.selectedFeatures.push(feature);
+      //     }
+      //     });
+      // }
+      // });
+
+      // //点击、绘制新的方框时清空选择列表
+      // dragBox.on('boxstart', () => {
+      //   this.selectedFeatures.clear();
+      // });
+    },
+    save() {
+
+    },
+    enableModify() {
       //创建一个Modify控件，指定source参数来指定可以对哪些地图源进行图形编辑，
       //Map对象中加入Modify控件后，就可以使用鼠标对已绘制的图形进行编辑。除了可以用鼠标拖拽图形节点外，
       //也可以使用鼠标拖拽直线，这将会拖拽出新的节点。如果想删除某个节点，只需要按住键盘的Alt键，然后鼠标点击该节点即可
-      var modify = new Modify({
-        source: this.sourceChosen
+      this.modify = new Modify({
+        source: this.mapLayers[this.curIdx].getSource()
       });
 
       // 将Modify控件加入到Map对象中
-      this.map.addInteraction(modify);
-
-      //点选、框选功能实现
-      //实现鼠标点击选择
-      var select = new Select();
-      this.map.addInteraction(select);
-      this.selectedFeatures = select.getFeatures();
-
-      //鼠标框选
-      var dragBox = new DragBox();
-
-      this.map.addInteraction(dragBox);
-
-      dragBox.on('boxend', () => {
-      // 视图没有进行旋转变化时，框选范围可以视为和实际范围一致，因此矢量要素和框选相交时可以视为被选中
-      var rotation = this.map.getView().getRotation();
-      var oblique = rotation % (Math.PI / 2) !== 0;
-      var candidateFeatures = oblique ? [] : this.selectedFeatures;
-      var extent = dragBox.getGeometry().getExtent();
-      this.sourceChosen.forEachFeatureIntersectingExtent(extent, function (feature) {
-        candidateFeatures.push(feature);
-      });
-
-      // 如果视图存在旋转变化，需要先把方框和要素同时旋转
-      if (oblique) {
-          var anchor = [0, 0];
-          var geometry = dragBox.getGeometry().clone();
-          geometry.rotate(-rotation, anchor);
-          var extent$1 = geometry.getExtent();
-          candidateFeatures.forEach(function (feature) {
-          var geometry = feature.getGeometry().clone();
-          geometry.rotate(-rotation, anchor);
-          if (geometry.intersectsExtent(extent$1)) {
-              this.selectedFeatures.push(feature);
-          }
-          });
-      }
-      });
-
-      //点击、绘制新的方框时清空选择列表
-      dragBox.on('boxstart', () => {
-        this.selectedFeatures.clear();
-      });
+      this.map.addInteraction(this.modify);
     },
-    save() {
+    addFeature() {
+      if (this.add == true) {
+        this.add = false;
+        this.enableModify();
+      } else {
+        this.add = true;
+        this.map.removeInteraction(this.modify);
+      }
+    },
+    addPoint() {
+
+    },
+    addLine() {
+
+    },
+    addPolygon() {
 
     },
     //地图增加绘制与拖动控件
