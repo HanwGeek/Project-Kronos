@@ -96,44 +96,36 @@ export default {
       drawer: null,
       show: false,
       selected: null,
-      layers: [
-        {
-          name: "crop",
-          show: false,
-          edit: false
-        },
-        {
-          name: "landuse",
-          show: false,
-          edit: false
-        }
-      ],
+      layers: [],
       title: 'KRONOS',
       avatar: require("../assets/greek.jpeg"),
       avatar_wang: require("../assets/wang.jpeg"),
       ava_guo: require("../assets/guo.jpg"),
       ava_yin: require("../assets/yin.jpg"),
       ava_chang: require("../assets/chang.jpg"),
-      isShowAside: false,
     }
   },
   created() {
     this.show = false;
-    this.$bus.$on("showMenuButton", () => {
+    this.$bus.$on("show-drawer", () => {
       this.show = true;
     });
+    this.$bus.$on("layer-names", (layerNames) => {
+      this.layers = layerNames.map(o => {return {
+        "name": o,
+        "show": false,
+        "edit": false,
+      }});
+    })
   },
   methods: {
-    updateMenuState() {
-      this.isShowAside = !this.isShowAside;
-      this.$bus.$emit("showAside", this.isShowAside);
-      this.btnType = this.btnType == "info" ? "primary" : "info";
-    },
     changeVisible(idx) {
       this.layers[idx].show = !this.layers[idx].show;
+      this.$bus.$emit("change-visible", idx);
     },
     changeEdit(idx) {
       this.layers[idx].edit = !this.layers[idx].edit;
+      this.$bus.$emit("change-edit", idx);
     }
   }
 }
