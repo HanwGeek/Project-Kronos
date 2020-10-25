@@ -1,40 +1,36 @@
 <template>
-  <div id="app">
-    <Header />
-    
-    <!-- <MapLayer /> -->
-    <!-- <SideBar /> -->
-    <router-view/>
- <v-footer padless>
+  <v-app>
+    <NavHeader /> 
+ <!-- <v-footer padless>
     <v-col
       class="text-center"
       cols="12"
     >
       Powered by Vue.js & Gin
     </v-col>
-  </v-footer>
-  </div>
+  </v-footer> -->
+   
+    <v-main>
+      <router-view/>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-import Header from '@/components/header'
+import NavHeader from '@/components/navheader'
 // import SideBar from '@/components/sidebar'
 
 export default {
   name: 'App',
   components: {
-    Header,
+    NavHeader,
     // SideBar
   },
   data () {
     return {
-      show: false
     }
   },
   created() {
-    this.$bus.$on("showAside", () => {
-      this.show = !this.show;
-    })
   }
 }
 </script>
