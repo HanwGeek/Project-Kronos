@@ -125,6 +125,7 @@ export default {
     },
     changeEdit(idx) {
       this.layers[idx].edit = !this.layers[idx].edit;
+      this.$bus.$emit("change-edit", idx);
     }
   }
 }
