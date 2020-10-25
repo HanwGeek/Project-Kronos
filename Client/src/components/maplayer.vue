@@ -1,6 +1,53 @@
 <template>
   <div>
     <div id="map"></div>
+    <v-layout class="tool-panel">
+    <v-hover v-slot="{ hover }">
+    <div>
+    <v-fab-transition>
+      <v-btn
+        v-show="hover"
+        color="green"
+        fab
+        dark
+        small>
+          <v-icon>mdi-vector-point</v-icon>
+      </v-btn>
+    </v-fab-transition>
+    <v-fab-transition>
+      <v-btn
+        v-show="hover"
+        color="blue"
+        fab
+        dark
+        small>
+          <v-icon>mdi-vector-polyline</v-icon>
+      </v-btn>
+    </v-fab-transition>
+    <v-fab-transition>
+      <v-btn
+        v-show="hover"
+        color="orange"
+        fab
+        dark
+        small>
+          <v-icon>mdi-vector-polygon</v-icon>
+      </v-btn>
+    </v-fab-transition>
+    <v-fab-transition>
+      <v-btn
+        v-show="add"
+        color="pink"
+        fab
+        dark
+        small>
+          <v-icon>mdi-plus</v-icon>
+      </v-btn>
+    </v-fab-transition>
+    </div>
+    </v-hover>
+    </v-layout>
+
     <!-- <div>测试用：{{ type }}</div>
     <label>Shape type &nbsp;</label>
     <select v-model="type">
@@ -32,41 +79,51 @@ export default {
   name: 'MapLayer',
   data () {
     return {
-      aaa: 0,
-      type: '',
       map: null,
-      Layers: null,
+      layers: [],
+      mapLayers: [],
+      layerCnt: 3,
+
+      add: false,
+      clientHeight: 0,
+      type: '',
       draw: null,
       snap: null,
       sourceChosen: null,
       layerChosen: null,
       selectedFeatures: null,
-      wfsSource: null,
       wfsLayer: null,
-      layers: [],
-      layerNames: ["crop", "landuse", "Beijing"],
-      layerMap: null,
-      visible: [],
-      layerCnt: 3,
     }
   },
   created() {
     // this.draw = new Draw();
     // this.snap = new Snap();
     this.$bus.$on("change-visible", (idx) => {
-      if (this.layers[idx] == null) {
-        // this.layerMap[idx] =  this.map.layers.length;
+      if (this.mapLayers[idx] == null) {
         this.loadLayer(idx);
-        this.layers[idx] = this.wfsLayer;
+        this.mapLayers[idx] = this.wfsLayer;
         this.map.addLayer(this.wfsLayer);
-        this.visible[idx] = true;
+        this.layers[idx].visible = true;
       } else {
-        this.visible[idx] = !this.visible[idx];
-        this.layers[idx].setVisible(this.visible[idx]);
+        this.layers[idx].visible  = !this.layers[idx].visible ;
+        this.mapLayers[idx].setVisible(this.layers[idx].visible );
       }
     });
+
+    this.$bus.$on("change-edit", (idx) => {
+      if (this.layers[idx].edit == false) {
+        this.layers[idx].edit = true;
+        this.add = true;
+        this.edit(idx);
+      } else {
+        this.layers[idx].edit = false;
+        this.add = false;
+        this.save();
+      }
+    })
   },
   mounted () {
+    this.clientHeight = `${document.documentElement.clientHeight}` - 64;
     this.init();
   },
   methods: {
@@ -74,12 +131,15 @@ export default {
       // Init layers metadata
       this.metadata = require("../assets/metadata.json");
       this.layerCnt = this.metadata["cnt"];
-      this.layerNames = this.metadata["layer"].map(o => {return o.name;});
-      this.$bus.$emit("layer-names", this.layerNames);
+      this.layers = this.metadata["layer"].map(o => {return {
+        "name": o.name,
+        "show": false,
+        "edit": false,
+        "url": o.url
+      }});
+      this.$bus.$emit("layer-names", this.layers.map(o => {return o.name}));
 
-      this.layers = Array.apply(null, Array(this.layerCnt)).map(function () {return null});
-      this.visible = Array.apply(null, Array(this.layerCnt)).map(function () {return false;});
-      this.layerMap = Array.apply(null, Array(this.layerCnt)).map(function (x, i) { return i});
+      this.mapLayers = Array.apply(null, Array(this.layerCnt)).map(function () {return null});
 
       this.osmLayer = new TileLayer({
         source: new OSM()
@@ -97,14 +157,14 @@ export default {
       });
     },
     loadLayer(idx) {
-      this.wfsSource = new VectorSource({
+      var wfsSource = new VectorSource({
         format: new GeoJSON(),
         url: this.metadata["layer"][idx].url,
         strategy: bboxStrategy
       });
 
       this.wfsLayer = new VectorLayer({
-        source: this.wfsSource,
+        source: wfsSource,
         style: new Style({
           stroke: new Stroke({
             color: 'rgba(0, 0, 255, 1.0)',
@@ -113,12 +173,14 @@ export default {
         })
       });
     },
-    edit() {
+    edit(idx) {
 
-      this.sourceChosen = new VectorSource();
-      this.layerChosen = new VectorLayer({
-        source:this.sourceChosen
-      });
+      this.sourceChosen = this.mapLayers[idx].getSource();
+      this.layerChosen = this.mapLayers[idx];
+
+      // this.draw = new Draw();
+      // this.snap = new Snap();
+
       //创建一个Modify控件，指定source参数来指定可以对哪些地图源进行图形编辑，
       //Map对象中加入Modify控件后，就可以使用鼠标对已绘制的图形进行编辑。除了可以用鼠标拖拽图形节点外，
       //也可以使用鼠标拖拽直线，这将会拖拽出新的节点。如果想删除某个节点，只需要按住键盘的Alt键，然后鼠标点击该节点即可
@@ -170,6 +232,9 @@ export default {
       dragBox.on('boxstart', () => {
         this.selectedFeatures.clear();
       });
+    },
+    save() {
+
     },
     //地图增加绘制与拖动控件
     AddInteraction(){
@@ -227,13 +292,19 @@ export default {
 <style scoped>
 #map {
   width: 100%;
-  height: 700px;
+  height: 800px;
   left: 0;
   z-index: 5;
 }
 #ol-dragbox {
   background-color: rgba(255,255,255,0.4);
   border-color: rgba(100,150,0,1);
+}
+
+.tool-panel {
+  position: fixed; 
+  bottom: 0; 
+  right: 0; 
 }
 </style>
 
