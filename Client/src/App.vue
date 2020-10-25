@@ -10,7 +10,6 @@
     </v-col>
   </v-footer> -->
    
-
     <v-main>
       <router-view/>
     </v-main>
@@ -29,13 +28,9 @@ export default {
   },
   data () {
     return {
-      show: false
     }
   },
   created() {
-    this.$bus.$on("showAside", () => {
-      this.show = !this.show;
-    })
   }
 }
 </script>
