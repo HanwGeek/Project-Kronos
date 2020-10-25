@@ -78,7 +78,7 @@ export default {
   },
   methods: {
     login() {
-      this.$bus.$emit("showMenuButton");
+      this.$bus.$emit("show-drawer");
       this.$router.push({
         name: 'map'
       });

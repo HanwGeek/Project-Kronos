@@ -1,0 +1,13 @@
+{
+  "cnt": 2,
+  "layer":[
+    {
+      "name": "crop",
+      "url": "./crop.json"
+    },
+    {
+      "name": "Landuse",
+      "url": "./landuse.json"
+    }
+  ]
+}

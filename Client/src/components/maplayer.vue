@@ -50,33 +50,36 @@ export default {
       layerCnt: 3,
     }
   },
-  created () {
-    this.draw = new Draw();
-    this.snap = new Snap();
-    this.$bus.$on("changeVisble", (idx) => {
+  created() {
+    // this.draw = new Draw();
+    // this.snap = new Snap();
+    this.$bus.$on("change-visible", (idx) => {
       if (this.layers[idx] == null) {
         // this.layerMap[idx] =  this.map.layers.length;
-        this.loadLayer();
+        this.loadLayer(idx);
         this.layers[idx] = this.wfsLayer;
         this.map.addLayer(this.wfsLayer);
+        this.visible[idx] = true;
       } else {
         this.visible[idx] = !this.visible[idx];
         this.layers[idx].setVisible(this.visible[idx]);
       }
-    })
+    });
   },
   mounted () {
     this.init();
-    this.loadLayer();
   },
   methods: {
     init () {
       // Init layers metadata
+      this.metadata = require("../assets/metadata.json");
+      this.layerCnt = this.metadata["cnt"];
+      this.layerNames = this.metadata["layer"].map(o => {return o.name;});
+      this.$bus.$emit("layer-names", this.layerNames);
 
       this.layers = Array.apply(null, Array(this.layerCnt)).map(function () {return null});
       this.visible = Array.apply(null, Array(this.layerCnt)).map(function () {return false;});
       this.layerMap = Array.apply(null, Array(this.layerCnt)).map(function (x, i) { return i});
-      this.$bus.$emit("layerNames", this.layerNames);
 
       this.osmLayer = new TileLayer({
         source: new OSM()
@@ -93,10 +96,10 @@ export default {
         }),
       });
     },
-    loadLayer() {
+    loadLayer(idx) {
       this.wfsSource = new VectorSource({
         format: new GeoJSON(),
-        url: require("../assets/crop.json"),
+        url: this.metadata["layer"][idx].url,
         strategy: bboxStrategy
       });
 
