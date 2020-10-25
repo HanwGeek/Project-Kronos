@@ -1,12 +1,12 @@
 <template>
   <div id="side-bar" v-show="show">
-    <el-drawer 
-      :visible.sync="show"
-      :direction="direction"
-      :modal="false"
-      :wrapper-closable="false">
-
-    </el-drawer>
+    <v-navigation-drawer
+      v-model="drawer"
+      :width="show ? 256 : 56"
+      permanent
+      expand-on-hover
+      app>
+    </v-navigation-drawer>
   </div>
 </template>
 
@@ -16,7 +16,7 @@ export default {
   data () {
     return {
       show: false,
-      direction: 'ltr',
+      drawer: null,
       layers: ["crop", "1"]
     }
   },
