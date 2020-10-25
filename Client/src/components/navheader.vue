@@ -122,6 +122,13 @@ export default {
     this.$bus.$on("showMenuButton", () => {
       this.show = true;
     });
+    this.$bus.$on("layerNames", (layerNames) => {
+      this.layers = layerNames.map(o => {return {
+        "name": o,
+        "show": false,
+        "edit": false,
+      }});
+    })
   },
   methods: {
     updateMenuState() {
@@ -131,6 +138,7 @@ export default {
     },
     changeVisible(idx) {
       this.layers[idx].show = !this.layers[idx].show;
+      this.$bus.$emit("changeVisible", idx);
     },
     changeEdit(idx) {
       this.layers[idx].edit = !this.layers[idx].edit;
