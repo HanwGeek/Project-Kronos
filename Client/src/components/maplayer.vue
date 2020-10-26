@@ -256,7 +256,7 @@ export default {
         this.enableModify();
       } else {
         this.add = true;
-        this.map.removeInteraction(this.modify);
+        this.map.removeInteraction(this.draw);
       }
     },
     addPoint() {
