@@ -6,6 +6,7 @@
     <v-fab-transition>
       <v-btn
         v-show="add"
+        @click="addPoint"
         color="green"
         fab
         dark
@@ -16,6 +17,7 @@
     <v-fab-transition>
       <v-btn
         v-show="add"
+        @click="addLine"
         color="blue"
         fab
         dark
@@ -26,6 +28,7 @@
     <v-fab-transition>
       <v-btn
         v-show="add"
+        @click="addPolygon"
         color="orange"
         fab
         dark
@@ -128,6 +131,7 @@ export default {
       } else {
         this.layers[idx].edit = false;
         this.enableEdit = false;
+        this.map.removeInteraction(this.modify);
         this.save();
       }
     })
@@ -256,13 +260,28 @@ export default {
       }
     },
     addPoint() {
-
+      this.map.removeInteraction(this.draw);
+      this.draw = new Draw({
+        source: this.mapLayers[this.curIdx].getSource(),
+        type: 'Point'
+      });
+      this.map.addInteraction(this.draw);
     },
     addLine() {
-
+      this.map.removeInteraction(this.draw);
+      this.draw = new Draw({
+        source: this.mapLayers[this.curIdx].getSource(),
+        type: 'LineString'
+      });
+      this.map.addInteraction(this.draw);
     },
     addPolygon() {
-
+      this.map.removeInteraction(this.draw);
+      this.draw = new Draw({
+        source: this.mapLayers[this.curIdx].getSource(),
+        type: 'Polygon'
+      });
+      this.map.addInteraction(this.draw);
     },
     //地图增加绘制与拖动控件
     AddInteraction(){
@@ -302,17 +321,6 @@ export default {
       }
     }
   },
-
-  watch:{
-    //监听要绘制的矢量要素类别是否发生了变化，发生变化时将绘制控件添加到地图上去
-    type:function(val){
-      this.type = val;
-      this.map.removeInteraction(this.draw);
-      this.map.removeInteraction(this.snap);
-      this.AddInteraction();
-    }
-
-  }
   
 }
 </script>
