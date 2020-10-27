@@ -2,23 +2,23 @@ package geom
 
 // Layer means a collection of geoms
 type Layer struct {
-    name     string
+	name     string
 	geomtype int
 	feat     map[int]Feature
 	// Id for next object. All features must be added by AddFeature()
-	next_id  int
+	next_id int
 }
 
-func NewLayer(name_ string, geomtype_ int) *Layer{
-    return &Layer{name_,geomtype_, make(map[int]Feature),0}
+func NewLayer(name_ string, geomtype_ int) *Layer {
+	return &Layer{name_, geomtype_, make(map[int]Feature), 0}
 }
 
-func (l Layer) GetName() string{
-    return l.name
+func (l Layer) GetName() string {
+	return l.name
 }
 
 func (l *Layer) SetName(name_ string) {
-    l.name=name_
+	l.name = name_
 }
 
 func (l Layer) GetGeomType() int {
@@ -34,9 +34,9 @@ func (l Layer) FeatureCount() int {
 }
 
 func (l Layer) GetFeature(id_ int) Feature {
-	feat,ok:=l.feat[id_]
-	if ok{
-	    return feat
+	feat, ok := l.feat[id_]
+	if ok {
+		return feat
 	}
 	return Feature{}
 }
@@ -47,8 +47,8 @@ func (l *Layer) AddFeature(f Feature) {
 		return
 	}
 	f.SetID(l.next_id)
-	l.feat[l.next_id]=f
-	l.next_id+=1
+	l.feat[l.next_id] = f
+	l.next_id += 1
 }
 
 // Replace a feature at index n
@@ -56,18 +56,18 @@ func (l *Layer) ReplaceFeature(id_ int, f Feature) {
 	if l.geomtype != f.geom.GeomType() {
 		return
 	}
-	_,ok:=l.feat[id_]
-	if !ok{
-	    return
+	_, ok := l.feat[id_]
+	if !ok {
+		return
 	}
-	l.feat[id_]=f
+	l.feat[id_] = f
 }
 
 // Delete a feature at index n
 func (l *Layer) DeleteFeature(id_ int) {
-    _,ok:=l.feat[id_]
-	if !ok{
-	    return
+	_, ok := l.feat[id_]
+	if !ok {
+		return
 	}
-	delete(l.feat,id_)
+	delete(l.feat, id_)
 }
