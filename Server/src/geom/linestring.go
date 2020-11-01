@@ -1,5 +1,7 @@
 package geom
 
+import "fmt"
+
 type LineString struct {
 	pos []Coord
 }
@@ -21,7 +23,7 @@ func (l LineString) GetPoint(n int) Coord {
 }
 
 // Change the point with index n
-func (l *LineString) EditPoint(n int, _x float32, _y float32) {
+func (l *LineString) EditPoint(n int, _x float64, _y float64) {
 	m := l.NPoints()
 	if n > m-1 {
 		return
@@ -30,12 +32,12 @@ func (l *LineString) EditPoint(n int, _x float32, _y float32) {
 }
 
 // Add a point at the end
-func (l *LineString) AddPoint(_x float32, _y float32) {
+func (l *LineString) AddPoint(_x float64, _y float64) {
 	l.pos = append(l.pos, Coord{_x, _y})
 }
 
 // Insert a point at index n
-func (l *LineString) InsertPoint(n int, _x float32, _y float32) {
+func (l *LineString) InsertPoint(n int, _x float64, _y float64) {
 	m := l.NPoints()
 	if n > m {
 		return
@@ -52,4 +54,16 @@ func (l *LineString) DeletePoint(n int) {
 		return
 	}
 	l.pos = append(l.pos[:n], l.pos[n+1:]...)
+}
+
+func (l LineString) ExportWKT() string {
+	wkt:="LINESTRING ("
+	for i:=0; i<len(l.pos);i++ {
+		if i>0 {
+			wkt += ","
+		}
+		wkt+=fmt.Sprintf("%f", l.pos[i].x)+" "+fmt.Sprintf("%f", l.pos[i].y)
+	}
+	wkt+=")"
+	return wkt
 }
