@@ -57,13 +57,13 @@ func (l *LineString) DeletePoint(n int) {
 }
 
 func (l LineString) ExportWKT() string {
-	wkt:="LINESTRING ("
-	for i:=0; i<len(l.pos);i++ {
-		if i>0 {
+	wkt := "LINESTRING ("
+	for i := 0; i < len(l.pos); i++ {
+		if i > 0 {
 			wkt += ","
 		}
-		wkt+=fmt.Sprintf("%f", l.pos[i].x)+" "+fmt.Sprintf("%f", l.pos[i].y)
+		wkt += fmt.Sprintf("%f", l.pos[i].x) + " " + fmt.Sprintf("%f", l.pos[i].y)
 	}
-	wkt+=")"
+	wkt += ")"
 	return wkt
 }

@@ -1,20 +1,25 @@
 package main
 
 import (
-	"kronos/src/ogcservice"
+	"fmt"
+	"io/ioutil"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	ogcservice.Connect()
-	// r := gin.Default()
+	// ogcservice.Connect()
+	r := gin.Default()
 
-	// r.GET("/ping", func(c *gin.Context) {
-	// 	c.JSON(200, gin.H{
-	// 		"message": "pong",
-	// 	})
+	file, err := ioutil.ReadFile("./data/crop.json")
+	if err != nil {
+		fmt.Printf("%v\n", err)
+	}
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, file)
 
-	// })
+	})
 
-	// r.Run()
+	r.Run()
 
 }
