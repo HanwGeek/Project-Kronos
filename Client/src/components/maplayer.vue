@@ -57,18 +57,6 @@
     </div>
     </v-layout>
 
-    <!-- <div>测试用：{{ type }}</div>
-    <label>Shape type &nbsp;</label>
-    <select v-model="type">
-        <option value="Point">Point</option>
-        <option value="LineString">LineString</option>
-        <option value="Polygon">Polygon</option>
-        <option value="Circle">Circle</option>
-        <option value="Square">Square</option>
-        <option value="Box">Box</option>
-        <option value="None">None</option>
-    </select>
-    <div>a{{ type }}</div>  -->
   </div>
 
 </template>
@@ -108,8 +96,6 @@ export default {
     }
   },
   created() {
-    // this.draw = new Draw();
-    // this.snap = new Snap();
     this.$bus.$on("change-visible", (idx) => {
       if (this.mapLayers[idx] == null) {
         this.loadLayer(idx);

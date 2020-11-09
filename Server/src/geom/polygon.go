@@ -47,22 +47,22 @@ func (p *Polygon) DeleteRing(n int) {
 }
 
 func (p Polygon) ExportWKT() string {
-	wkt:="POLYGON ("
-	for i:=0; i<len(p.rings);i++ {
-		if i>0 {
+	wkt := "POLYGON ("
+	for i := 0; i < len(p.rings); i++ {
+		if i > 0 {
 			wkt += ","
 		}
-		wkt+="("
-		for j:=0; j<len(p.rings[i].pos);j++ {
-			if j>0 {
+		wkt += "("
+		for j := 0; j < len(p.rings[i].pos); j++ {
+			if j > 0 {
 				wkt += ","
 			}
-			wkt+=fmt.Sprintf("%f", p.rings[i].pos[j].x)+" "+fmt.Sprintf("%f", p.rings[i].pos[j].y)
+			wkt += fmt.Sprintf("%f", p.rings[i].pos[j].x) + " " + fmt.Sprintf("%f", p.rings[i].pos[j].y)
 
 		}
-		wkt+=","+ fmt.Sprintf("%f", p.rings[i].pos[0].x)+" "+fmt.Sprintf("%f", p.rings[i].pos[0].y)
-		wkt+=")"
+		wkt += "," + fmt.Sprintf("%f", p.rings[i].pos[0].x) + " " + fmt.Sprintf("%f", p.rings[i].pos[0].y)
+		wkt += ")"
 	}
-	wkt+=")"
+	wkt += ")"
 	return wkt
 }

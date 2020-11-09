@@ -38,6 +38,7 @@
           </v-btn>
         </v-list-item-action>
         <v-list-item-title v-text="layer.name"></v-list-item-title>
+
         <v-list-item-action>
           <v-btn
             @click="changeEdit(i)" 
@@ -49,6 +50,16 @@
             </v-icon>
             <v-icon
               v-else>
+              mdi-pencil
+            </v-icon>
+          </v-btn>
+        </v-list-item-action>
+        <v-list-item-action>
+          <v-btn class="float"
+            @click="changeEdit(i)" 
+            icon>
+             <v-icon
+              color="blue darken-2">
               mdi-pencil
             </v-icon>
           </v-btn>
@@ -140,7 +151,7 @@ export default {
   line-height: 40px;
   top: 0;
   left: 0;
-  z-index: 100;
+  z-index: 10;
   background-color: #fff;
   box-shadow: 0 0 1px rgba(0,0,0,0.25);
 }
@@ -149,13 +160,13 @@ export default {
   float: left;
   vertical-align: center;
 }
-.el-button {
-  position: fixed;
+
+.float {
+  position: relative;
   left: 10px;
-  top: 15px;
-  padding: 10px;
-  /* height: 40px; */
+  z-index: 100;
 }
+
 #avatar img{
   right: 15px;
   height: 35px;

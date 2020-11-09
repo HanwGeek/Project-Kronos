@@ -20,5 +20,5 @@ func (p *Point) SetPos(_x float64, _y float64) {
 }
 
 func (p Point) ExportWKT() string {
-	return "POINT ("+fmt.Sprintf("%f", p.pos.x)+" "+fmt.Sprintf("%f", p.pos.y)+")"
+	return "POINT (" + fmt.Sprintf("%f", p.pos.x) + " " + fmt.Sprintf("%f", p.pos.y) + ")"
 }
