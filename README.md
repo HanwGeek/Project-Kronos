@@ -9,16 +9,14 @@ WFS标准: <https://www.ogc.org/standards/wfs>
 
 ## Front End
 
-* Vue + ElementUI/Vuetify + Openlayers/Mapbox (已遵照OGC标准)
-* Openlayers WFS获取/编辑/删除 <https://zhuanlan.zhihu.com/p/83930840>
+* Vue + Vuetify + Openlayers/Mapbox (已遵照OGC标准)
 
 ## Back End
 
-* 非常有可能需要自己实现符合OGC标准的地图发布服务 (C++/GO/JAVA/Python) 看起来Go比较容易
 * Server: 
-  * 处理来自Client的WFS请求
+  * 处理来自Client的请求
   * 打开并解析 `.shp`文件或`PostGreSQL`数据库
-  * 返回`XML/JSON`
+  * 返回`JSON`
 * Core:
   * 将数据解析为自主定义的数据结构
   * 可能的算法扩展

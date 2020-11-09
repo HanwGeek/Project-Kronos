@@ -68,7 +68,63 @@ func Connect() {
 		})
 	}
 
-	/*
+	// get a layer.
+	fmt.Printf("test for query data.\n\n")
+	layers := GetLayers()
+	fmt.Printf("test1: layer count = %d\n", len(layers))
+	//fmt.Printf("test2: layers = %v\n", layers)
+
+	// // add a layer.
+	// layer := geom.NewLayer(1, "test_layer2", 1) // layer pointer.
+	// //p1 := geom.Point{geom.Coord{1, 2}}
+	// //p2 := geom.Point{geom.Coord{3, 4}}
+	// p1 := geom.Point{}
+	// p1.SetPos(1, 2)
+	// p2 := geom.Point{}
+	// p2.SetPos(3, 4)
+	// attr1 := map[string]interface{}{"fid": 0, "name": "point1", "class": 1}
+	// attr2 := map[string]interface{}{"fid": 1, "name": "point2", "class": 2}
+	// feat1 := geom.NewFeature(p1, attr1) // feature pointer.
+	// feat2 := geom.NewFeature(p2, attr2) // feature pointer.
+	// fmt.Printf("the feat1 = %v\n", *feat1)
+	// fmt.Printf("the feat2 = %v\n", *feat2)
+	// layer.AddFeature(*feat1)
+	// layer.AddFeature(*feat2)
+	// AddLayer(*layer)
+	// fmt.Printf("the new layer = %v\n", *layer)
+
+	// fmt.Printf("\n\ntest for add data.\n\n")
+	// layers = GetLayers()
+	// fmt.Printf("test3: layer count = %d\n", len(layers))
+	// fmt.Printf("test4: layers = %v\n", layers[1:])
+
+	// // update a layer.
+	// layer.SetName("test_layer3")
+	// f := layer.GetFeature(0)
+	// (&f).SetAttribute("name", "point1.1")
+	// //(&(layer.GetFeature(0))).SetAttribute("name", "point1.1")
+	// //layer.GetFeature(0).SetAttribute("name", "point1.1")
+	// UpdateLayer(*layer)
+
+	// fmt.Printf("test5: layer count = %d\n", len(layers))
+	// fmt.Printf("test6: layers = %v\n", layers[1:])
+
+	// // delete a layer.
+	// DelLayer(layer.GetId())
+
+	// fmt.Printf("\n\ntest for delete data.\n\n")
+	// fmt.Printf("layer.getid = %d\n", layer.GetId())
+	// layers = GetLayers()
+	// fmt.Printf("test7: layer count = %d\n", len(layers))
+
+}
+
+/*
+* Below are 4 interfaces to query data from database.
+* 1. GetFeatureById
+* 2. GetFeatures
+* 3. GetLayerById
+* 4. GetLayer/*
 		// get a layer.
 		fmt.Printf("test for query data.\n\n")
 		layers := GetLayers()
@@ -106,30 +162,8 @@ func Connect() {
 		//(&(layer.GetFeature(0))).SetAttribute("name", "point1.1")
 		//layer.GetFeature(0).SetAttribute("name", "point1.1")
 		UpdateLayer(*layer)
-
-		fmt.Printf("\n\ntest for update data.\n\n")
-		layers = GetLayers()
-		fmt.Printf("test5: layer count = %d\n", len(layers))
-		fmt.Printf("test6: layers = %v\n", layers[1:])
-
-		// delete a layer.
-		DelLayer(layer.GetId())
-
-		fmt.Printf("\n\ntest for delete data.\n\n")
-		fmt.Printf("layer.getid = %d\n", layer.GetId())
-		layers = GetLayers()
-		fmt.Printf("test7: layer count = %d\n", len(layers))
-
-	*/
-}
-
-/*
-* Below are 4 interfaces to query data from database.
-* 1. GetFeatureById
-* 2. GetFeatures
-* 3. GetLayerById
-* 4. GetLayers
- */
+s
+*/
 
 // GetFeatureById return a feature with a given layerId & featId (as the format we defined in "geom" module).
 func GetFeatureById(layerId int, featId int) geom.Feature {
