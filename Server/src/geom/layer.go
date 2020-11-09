@@ -2,6 +2,7 @@ package geom
 
 // Layer means a collection of geoms
 type Layer struct {
+	id       int // Id for layer, as the only identifier
 	name     string
 	geomtype int
 	feat     map[int]Feature
@@ -9,8 +10,13 @@ type Layer struct {
 	next_id int
 }
 
-func NewLayer(name_ string, geomtype_ int) *Layer {
-	return &Layer{name_, geomtype_, make(map[int]Feature), 0}
+// Add id.
+func NewLayer(id_ int, name_ string, geomtype_ int) *Layer {
+	return &Layer{id_, name_, geomtype_, make(map[int]Feature), 0}
+}
+
+func (l Layer) GetId() int {
+	return l.id
 }
 
 func (l Layer) GetName() string {

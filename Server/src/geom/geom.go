@@ -1,7 +1,7 @@
 package geom
 
 import (
-	"fmt"
+	//"fmt"
 	"strconv"
 	"strings"
 )
@@ -30,63 +30,63 @@ type Geometry interface {
 	ExportWKT() string
 }
 
-func NewGeomByWKT(str string) Geometry{
-	if strings.Contains(str,"POINT") {
-		f_:=func(c rune) bool{
-			if c == ' ' || c == '('|| c==')' {
-				return true
-				} else {
-				return false
-				}
-		}
-		segs:=strings.FieldsFunc(str,f_)
-		x_,_:=strconv.ParseFloat(segs[1],64)
-		y_,_:=strconv.ParseFloat(segs[2],64)
-		return Point{Coord{x_,y_}}
-
-	} else if strings.Contains(str,"LINESTRING") {
-		f_:=func(c rune) bool{
-			if c == ' ' || c == '('|| c==')'|| c==',' {
+func NewGeomByWKT(str string) Geometry {
+	if strings.Contains(str, "POINT") {
+		f_ := func(c rune) bool {
+			if c == ' ' || c == '(' || c == ')' {
 				return true
 			} else {
 				return false
 			}
 		}
-		segs:=strings.FieldsFunc(str,f_)
-		newline:=LineString{}
-		for p:=0;2*p+2<len(segs);p++{
-			x_,_:=strconv.ParseFloat(segs[2*p+1],64)
-			y_,_:=strconv.ParseFloat(segs[2*p+2],64)
-			newline.AddPoint(x_,y_)
+		segs := strings.FieldsFunc(str, f_)
+		x_, _ := strconv.ParseFloat(segs[1], 64)
+		y_, _ := strconv.ParseFloat(segs[2], 64)
+		return Point{Coord{x_, y_}}
+
+	} else if strings.Contains(str, "LINESTRING") {
+		f_ := func(c rune) bool {
+			if c == ' ' || c == '(' || c == ')' || c == ',' {
+				return true
+			} else {
+				return false
+			}
+		}
+		segs := strings.FieldsFunc(str, f_)
+		newline := LineString{}
+		for p := 0; 2*p+2 < len(segs); p++ {
+			x_, _ := strconv.ParseFloat(segs[2*p+1], 64)
+			y_, _ := strconv.ParseFloat(segs[2*p+2], 64)
+			newline.AddPoint(x_, y_)
 		}
 		return newline
-	} else if strings.Contains(str,"POLYGON") {
-		f_:=func(c rune) bool{
-			if c == ' ' || c==')'|| c==',' {
+	} else if strings.Contains(str, "POLYGON") {
+		f_ := func(c rune) bool {
+			if c == ' ' || c == ')' || c == ',' {
 				return true
 			} else {
 				return false
 			}
 		}
-		segs:=strings.FieldsFunc(str,f_)
-		strp:=strings.Join(segs[1:]," ")
-		segs=strings.Split(strp,"(")[2:]
-		newpoly:=Polygon{}
-		outr:=LineString{}
-		strout:=strings.Fields(segs[0])
-		for i:=0;2*i+1<len(strout)-2;i++{
-			x_,_:=strconv.ParseFloat(strout[2*i],64)
-			y_,_:=strconv.ParseFloat(strout[2*i+1],64)
-			outr.AddPoint(x_,y_)
+		segs := strings.FieldsFunc(str, f_)
+		strp := strings.Join(segs[1:], " ")
+		segs = strings.Split(strp, "(")[2:]
+		newpoly := Polygon{}
+		outr := LineString{}
+		strout := strings.Fields(segs[0])
+		for i := 0; 2*i+1 < len(strout)-2; i++ {
+			x_, _ := strconv.ParseFloat(strout[2*i], 64)
+			y_, _ := strconv.ParseFloat(strout[2*i+1], 64)
+			outr.AddPoint(x_, y_)
 		}
 		newpoly.AddRing(outr)
-		for r:=1;r<len(segs);r++{
-			innr:=LineString{}
-			strin:=strings.Fields(segs[r])
-			for i:=0;2*i+1<len(strin)-2;i++{
-				x_,_:=strconv.ParseFloat(strin[2*i],64)
-				y_,_:=strconv.ParseFloat(strin[2*i+1],64)
-				innr.AddPoint(x_,y_)
+		for r := 1; r < len(segs); r++ {
+			innr := LineString{}
+			strin := strings.Fields(segs[r])
+			for i := 0; 2*i+1 < len(strin)-2; i++ {
+				x_, _ := strconv.ParseFloat(strin[2*i], 64)
+				y_, _ := strconv.ParseFloat(strin[2*i+1], 64)
+				innr.AddPoint(x_, y_)
 			}
 			newpoly.AddRing(innr)
 		}
