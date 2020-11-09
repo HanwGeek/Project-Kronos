@@ -11,6 +11,11 @@ func NewFeatureByGeom(geom_ Geometry) *Feature {
 	return &Feature{-1, geom_, make(map[string]interface{})}
 }
 
+// Add by Ganmin Yin.
+func NewFeature(geom_ Geometry, attr_ map[string]interface{}) *Feature {
+	return &Feature{-1, geom_, attr_}
+}
+
 func (feat Feature) GetID() int {
 	return feat.id
 }
