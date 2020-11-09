@@ -3,7 +3,7 @@
   "layer":[
     {
       "name": "crop",
-      "url": "./crop.json"
+      "url": "http://localhost:8080/data"
     },
     {
       "name": "Landuse",
