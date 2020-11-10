@@ -1,5 +1,9 @@
 package geom
 
+import (
+	"encoding/json"
+)
+
 // Feature means a combination of geometry and attributes.
 type Feature struct {
 	id   int
@@ -60,4 +64,17 @@ func (feat *Feature) DeleteAttribute(attrname string) {
 	if ok {
 		delete(feat.attr, attrname)
 	}
+}
+
+func (feat *Feature) ExportMap() map[string]interface{}{
+	mj:=make(map[string]interface{})
+	mj["type"]="Feature"
+	mj["properties"]=feat.attr
+	mj["geometry"]= feat.geom.ExportMap()
+	return mj
+}
+
+func (feat *Feature) ExportGeoJSON() string {
+	s,_ :=json.Marshal(feat.ExportMap())
+	return string(s)
 }
