@@ -3,8 +3,6 @@ package geom
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
-	"strings"
 )
 
 // Layer means a collection of geoms
