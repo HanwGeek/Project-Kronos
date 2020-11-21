@@ -3,6 +3,7 @@ package ogcservice
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"kronos/src/geom"
 
@@ -17,11 +18,6 @@ const (
 )
 
 var db *pg.DB
-
-// Manager manages the layers
-type Manager struct {
-	layers []geom.Layer
-}
 
 type LayerInfo struct {
 	//tableName struct{} `pg:"layers"`
@@ -189,14 +185,32 @@ func GetFeatureById(layerId int, featId int) geom.Feature {
 	return feature
 }
 
+func parseFeat(featinfo FeatInfo) geom.Feature {
+	// Parse attrbutes.
+	attrData := []byte(featinfo.Attributes)
+	var attrJson interface{}
+	err := json.Unmarshal(attrData, &attrJson)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// attr := attrJson.Attributes
+	wkt := featinfo.Wkt
+
+	geometry := geom.NewGeomByWKT(wkt)
+	feature := *geom.NewFeature(geometry, attrJson.(map[string]interface{}))
+	feature.SetID(featinfo.FeatID)
+	return feature
+}
+
 // GetFeatures return all features with a given layerId (as the format we defined in "geom" module).
-func GetFeatures(layerId int) []geom.Feature {
+func GetFeatures(layerID int) []geom.Feature {
 	var features []geom.Feature
-	featinfos := GetFeatInfo(layerId)
+	featinfos := GetFeatInfo(layerID)
 
 	for _, featinfo := range featinfos {
-		feature := GetFeatureById(layerId, featinfo.FeatID)
-		features = append(features, feature)
+		// feature := GetFeatureById(layerID, featinfo.FeatID)
+		features = append(features, parseFeat(featinfo))
 	}
 
 	return features

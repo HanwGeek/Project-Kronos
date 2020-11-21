@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"kronos/src/ogcservice"
+	"strconv"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,9 @@ type ReqData struct {
 
 func main() {
 	ogcservice.Connect()
+
+	lm := ogcservice.NewManager()
+
 	r := gin.Default()
 
 	// Allow CORS
@@ -42,8 +46,10 @@ func main() {
 	})
 
 	r.GET("/getlayer", func(c *gin.Context) {
-		name := c.Query("name")
-		fmt.Printf("%v\n", name)
+		layerIDParam := c.Query("id")
+		fmt.Printf("%v\n", layerIDParam)
+		layerID, _ := strconv.Atoi(layerIDParam)
+		c.JSON(200, lm.GetLayerContent(layerID))
 	})
 
 	r.POST("/post", func(c *gin.Context) {

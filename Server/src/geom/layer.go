@@ -20,24 +20,24 @@ func NewLayer(id_ int, name_ string, geomtype_ int) *Layer {
 	return &Layer{id_, name_, geomtype_, make(map[int]Feature), 0}
 }
 
-func NewLayerfromGeoJSON(json_ string, id_ int) *Layer{
+func NewLayerfromGeoJSON(json_ string, id_ int) *Layer {
 	var m map[string]interface{}
-	err :=json.Unmarshal([]byte(json_), &m)
+	err := json.Unmarshal([]byte(json_), &m)
 	if err != nil {
 		fmt.Println("err = ", err)
 		return nil
 	}
 
 	var layer Layer
-	layer.id=id_
-	layer.feat=make(map[int]Feature)
-	switch featlist:=m["features"].(type){
+	layer.id = id_
+	layer.feat = make(map[int]Feature)
+	switch featlist := m["features"].(type) {
 	case []interface{}:
-		for i:=0;i<len(featlist);i++ {
+		for i := 0; i < len(featlist); i++ {
 			var feat_temp Feature
-			switch feat_:= featlist[i].(type){
-			case map[string] interface{}:
-				switch geom_:=feat_["geometry"].(type) {
+			switch feat_ := featlist[i].(type) {
+			case map[string]interface{}:
+				switch geom_ := feat_["geometry"].(type) {
 				case map[string]interface{}:
 					if geom_["type"] == "Point" {
 						if i == 0 {
@@ -46,9 +46,9 @@ func NewLayerfromGeoJSON(json_ string, id_ int) *Layer{
 						var geom_temp Point
 						switch pos_ := geom_["coordinates"].(type) {
 						case []interface{}:
-							switch x_:=pos_[0].(type){
+							switch x_ := pos_[0].(type) {
 							case float64:
-								switch y_:=pos_[1].(type){
+								switch y_ := pos_[1].(type) {
 								case float64:
 									geom_temp.SetPos(x_, y_)
 								}
@@ -63,9 +63,9 @@ func NewLayerfromGeoJSON(json_ string, id_ int) *Layer{
 						switch pos_ := geom_["coordinates"].(type) {
 						case []interface{}:
 							for j := 0; j < len(pos_); j++ {
-								switch point_:=pos_[j].(type){
+								switch point_ := pos_[j].(type) {
 								case []interface{}:
-									switch x_:=point_[0].(type) {
+									switch x_ := point_[0].(type) {
 									case float64:
 										switch y_ := point_[1].(type) {
 										case float64:
@@ -83,14 +83,14 @@ func NewLayerfromGeoJSON(json_ string, id_ int) *Layer{
 						var geom_temp Polygon
 						switch pos_ := geom_["coordinates"].(type) {
 						case []interface{}:
-							switch posi_:=pos_[0].(type){
+							switch posi_ := pos_[0].(type) {
 							case []interface{}:
 								for r := 0; r < len(posi_); r++ {
 									var ring_temp LineString
-									switch ring_:=posi_[r].(type){
+									switch ring_ := posi_[r].(type) {
 									case []interface{}:
 										for j := 0; j < len(ring_)-1; j++ {
-											switch point_:=ring_[j].(type){
+											switch point_ := ring_[j].(type) {
 											case []interface{}:
 												switch x_ := point_[0].(type) {
 												case float64:
@@ -109,9 +109,9 @@ func NewLayerfromGeoJSON(json_ string, id_ int) *Layer{
 						feat_temp = *NewFeatureByGeom(geom_temp)
 					}
 				}
-				switch attr_:=feat_["properties"].(type){
-				case map[string] interface{}:
-					feat_temp.attr=attr_
+				switch attr_ := feat_["properties"].(type) {
+				case map[string]interface{}:
+					feat_temp.attr = attr_
 				}
 				layer.AddFeature(feat_temp)
 			}
@@ -157,7 +157,9 @@ func (l *Layer) AddFeature(f Feature) {
 	if l.geomtype != f.geom.GeomType() {
 		return
 	}
-	f.SetID(l.next_id)
+	if f.GetID() == -1 {
+		f.SetID(l.next_id)
+	}
 	l.feat[l.next_id] = f
 	l.next_id += 1
 }
@@ -183,15 +185,15 @@ func (l *Layer) DeleteFeature(id_ int) {
 	delete(l.feat, id_)
 }
 
-func (l Layer) ExportGeoJSON() string {
-	mj:=make(map[string]interface{})
-	mj["type"]="FeatureCollection"
-	var featArray []map[string] interface{}
+func (l Layer) ExportGeoJSON() map[string]interface{} {
+	mj := make(map[string]interface{})
+	mj["type"] = "FeatureCollection"
+	var featArray []map[string]interface{}
 	for id := range l.feat {
-		feature:= l.feat[id]
-		featArray=append(featArray,feature.ExportMap())
+		feature := l.feat[id]
+		featArray = append(featArray, feature.ExportMap())
 	}
-	mj["features"]=featArray
-	s,_ :=json.Marshal(mj)
-	return string(s)
+	mj["features"] = featArray
+	// s, _ := json.Marshal(mj)
+	return mj
 }
