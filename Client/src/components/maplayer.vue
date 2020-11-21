@@ -79,7 +79,8 @@ export default {
       map: null,
       layers: [],
       mapLayers: [],
-      layerCnt: 3,
+      layerCnt: 0,
+      metadata: null,
 
       add: false,
       enableEdit: false,
@@ -129,17 +130,22 @@ export default {
   methods: {
     init () {
       // Init layers metadata
-      this.metadata = require("../assets/metadata.json");
-      this.layerCnt = this.metadata["cnt"];
-      this.layers = this.metadata["layer"].map(o => {return {
-        "name": o.name,
-        "show": false,
-        "edit": false,
-        "url": o.url
-      }});
-      this.$bus.$emit("layer-names", this.layers.map(o => {return o.name}));
-
-      this.mapLayers = Array.apply(null, Array(this.layerCnt)).map(function () {return null});
+      this.$http.get("http://localhost:8080/getlayerinfo").then(
+        (response) => {
+          this.metadata = response.data
+          this.layerCnt = this.metadata.length;
+          this.layers = this.metadata.map(o => {return {
+            "id": o.LayerID, 
+            "name": o.LayerName,
+            "cnt": o.Count,
+            "type": o.Type,
+            "show": false,
+            "edit": false,
+          }});
+          this.$bus.$emit("layer-names", this.layers.map(o => {return o.name}));
+          this.mapLayers = Array.apply(null, Array(this.layerCnt)).map(function () {return null});
+        }
+      );
 
       this.osmLayer = new TileLayer({
         source: new OSM()
@@ -157,9 +163,10 @@ export default {
       });
     },
     loadLayer(idx) {
+      console.log("http://localhost:8080/getlayer?id=" + this.layers[idx]["id"])
       var wfsSource = new VectorSource({
         format: new GeoJSON(),
-        url: this.metadata["layer"][idx].url,
+        url: "http://localhost:8080/getlayer?id=" + this.layers[idx].id,
         strategy: bboxStrategy
       });
 
@@ -167,7 +174,7 @@ export default {
         source: wfsSource,
         style: new Style({
           stroke: new Stroke({
-            color: 'rgba(0, 0, 255, 1.0)',
+            color: 'rgba(22, 59, 64, 1.0)',
             width: 2
           })
         })
