@@ -174,7 +174,6 @@ export default {
       });
     },
     loadLayer(idx) {
-      console.log("http://localhost:8080/getlayer?id=" + this.layers[idx]["id"])
       var wfsSource = new VectorSource({
         format: new GeoJSON(),
         url: "http://localhost:8080/getlayer?id=" + this.layers[idx].id,
