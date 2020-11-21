@@ -64,13 +64,18 @@
 <script>
 import Map from 'ol/Map'
 //import GeoJSON from 'ol/format/GeoJSON';
-import OpenLayersView from 'ol/View'
+import OpenLayersView from 'ol/View';
 import GeoJSON from 'ol/format/GeoJSON';
 import {bbox as bboxStrategy} from 'ol/loadingstrategy';
 import {Stroke, Style} from 'ol/style';
-import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer'
-import {OSM, Vector as VectorSource} from 'ol/source'
+import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
+import {OSM, Vector as VectorSource} from 'ol/source';
 import {Draw, Modify, Snap} from 'ol/interaction';
+
+//import qs from 'qs';
+//import FileSaver from 'file-saver';
+//import  writeFeaturesObject from 'ol/format/GeoJSON';
+//import Projection from 'ol/proj/Projection';
 
 export default {
   name: 'MapLayer',
@@ -93,6 +98,10 @@ export default {
       layerChosen: null,
       selectedFeatures: null,
       wfsLayer: null,
+      feature_to_save: null,
+      f: null,
+      data_Projection: null,
+      op:null,
     }
   },
   created() {
@@ -119,6 +128,8 @@ export default {
         this.enableEdit = false;
         this.map.removeInteraction(this.modify);
         this.save();
+        //默认当不再编辑直接进行保存/Post数据
+        this.Post_data(this.op,this.metadata["layer"][idx].name);
       }
     })
   },
@@ -235,6 +246,7 @@ export default {
 
       // 将Modify控件加入到Map对象中
       this.map.addInteraction(this.modify);
+      this.op = 'Modify';
     },
     addFeature() {
       if (this.add == true) {
@@ -269,6 +281,50 @@ export default {
       });
       this.map.addInteraction(this.draw);
     },
+
+    Get_data(){
+
+    },
+
+
+    //保存修改过后的要素
+    Post_data(_op, _layer_id){
+      this.feature_to_save = this.mapLayers[this.curIdx].getSource().getFeatures();
+      this.f = this.feature_to_save[0].getGeometry();
+      //this.data_Projection = new Projection({code: "EPSG:4326"});
+      //var code = this.data_Projection.getCode();
+      
+      const format = new GeoJSON({featureProjection: 'EPSG:4326'});
+
+      let Expotrt_json = format.writeFeaturesObject(this.feature_to_save);
+      
+
+      const json_data  =JSON.stringify(Expotrt_json);
+      //const blob = new Blob([json_data], {type: ''});
+      //FileSaver.saveAs(blob,'1.json');
+
+      this.$http({
+                  url: 'http://162.105.17.227:8080/post',
+                  method:'post',
+                  //发送格式为json
+                  data:{
+                    'op':_op,
+                    'Layer_id':_layer_id,
+                    'geojson':json_data
+                  },
+                  
+                  //headers: {'Content-Type':'application/x-www-form-urlencoded'}
+                  headers: {'Content-Type': 'application/json; charset=UTF-8'}
+                }).then(function(return_data)  
+          {
+            alert(return_data)
+          },function(return_data)
+          {
+            alert(return_data)
+          });
+
+    },
+
     //地图增加绘制与拖动控件
     AddInteraction(){
       if(this.type != "None"){
@@ -307,6 +363,9 @@ export default {
       }
     }
   },
+
+  
+  
   
 }
 </script>
