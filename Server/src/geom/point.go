@@ -26,14 +26,14 @@ func (p Point) ExportWKT() string {
 	return "POINT (" + fmt.Sprintf("%f", p.pos.x) + " " + fmt.Sprintf("%f", p.pos.y) + ")"
 }
 
-func (p Point) ExportMap() map[string] interface{}{
-	mj:=make(map[string]interface{})
-	mj["type"]="Point"
-	mj["coordinates"]=[]float64{p.pos.x,p.pos.y}
+func (p Point) ExportMap() map[string]interface{} {
+	mj := make(map[string]interface{})
+	mj["type"] = "Point"
+	mj["coordinates"] = []float64{p.pos.x, p.pos.y}
 	return mj
 }
 
 func (p Point) ExportGeoJSON() string {
-	s,_ :=json.Marshal(p.ExportMap())
+	s, _ := json.Marshal(p.ExportMap())
 	return string(s)
 }

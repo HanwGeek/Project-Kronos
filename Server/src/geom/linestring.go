@@ -71,21 +71,21 @@ func (l LineString) ExportWKT() string {
 	return wkt
 }
 
-func (l LineString) ExportMap() map[string] interface{} {
-	mj:=make(map[string]interface{})
-	mj["type"]="LineString"
+func (l LineString) ExportMap() map[string]interface{} {
+	mj := make(map[string]interface{})
+	mj["type"] = "LineString"
 	var pointArray [][]float64
 	for i := 0; i < l.NPoints(); i++ {
 		subArray := make([]float64, 2)
-		subArray[0]=l.pos[i].x
-		subArray[1]=l.pos[i].y
+		subArray[0] = l.pos[i].x
+		subArray[1] = l.pos[i].y
 		pointArray = append(pointArray, subArray)
 	}
-	mj["coordinates"]= pointArray
+	mj["coordinates"] = pointArray
 	return mj
 }
 
 func (l LineString) ExportGeoJSON() string {
-	s,_ :=json.Marshal(l.ExportMap())
+	s, _ := json.Marshal(l.ExportMap())
 	return string(s)
 }

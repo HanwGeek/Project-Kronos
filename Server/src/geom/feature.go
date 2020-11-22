@@ -15,6 +15,22 @@ func NewFeatureByGeom(geom_ Geometry) *Feature {
 	return &Feature{-1, geom_, make(map[string]interface{})}
 }
 
+func NewFeatFromJSON(json map[string]interface{}) *Feature {
+	geom := json["geometry"].(map[string]interface{})
+	attrs := json["properties"].(map[string]interface{})
+
+	switch geom["type"] {
+	case "Point":
+		pos := geom["coordinates"].([]float64)
+		return NewFeature(Point{NewCoord(pos)}, attrs)
+	case "LineString":
+		pos := geom["coordinates"].([][]float64)
+		return NewFeature(LineString{NewCoordList(pos)}, attrs)
+	case "Polygon":
+		pos := geom["coordinates"].([][]float64)
+	}
+}
+
 // Add by Ganmin Yin.
 func NewFeature(geom_ Geometry, attr_ map[string]interface{}) *Feature {
 	return &Feature{-1, geom_, attr_}
@@ -66,15 +82,15 @@ func (feat *Feature) DeleteAttribute(attrname string) {
 	}
 }
 
-func (feat *Feature) ExportMap() map[string]interface{}{
-	mj:=make(map[string]interface{})
-	mj["type"]="Feature"
-	mj["properties"]=feat.attr
-	mj["geometry"]= feat.geom.ExportMap()
+func (feat *Feature) ExportMap() map[string]interface{} {
+	mj := make(map[string]interface{})
+	mj["type"] = "Feature"
+	mj["properties"] = feat.attr
+	mj["geometry"] = feat.geom.ExportMap()
 	return mj
 }
 
 func (feat *Feature) ExportGeoJSON() string {
-	s,_ :=json.Marshal(feat.ExportMap())
+	s, _ := json.Marshal(feat.ExportMap())
 	return string(s)
 }
