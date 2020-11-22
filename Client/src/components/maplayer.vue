@@ -2,75 +2,54 @@
   <div>
     <div id="map"></div>
     <v-layout class="tool-panel">
-    <div>
-    <v-fab-transition>
-      <v-btn
-        v-show="add"
-        @click="addPoint"
-        color="green"
-        fab
-        dark
-        small>
-          <v-icon>mdi-vector-point</v-icon>
-      </v-btn>
-    </v-fab-transition>
-    <v-fab-transition>
-      <v-btn
-        v-show="add"
-        @click="addLine"
-        color="blue"
-        fab
-        dark
-        small>
-          <v-icon>mdi-vector-polyline</v-icon>
-      </v-btn>
-    </v-fab-transition>
-    <v-fab-transition>
-      <v-btn
-        v-show="add"
-        @click="addPolygon"
-        color="orange"
-        fab
-        dark
-        small>
-          <v-icon>mdi-vector-polygon</v-icon>
-      </v-btn>
-    </v-fab-transition>
-    <v-fab-transition>
-      <v-btn
-        v-show="enableEdit"
-        @click="addFeature"
-        color="pink"
-        fab
-        dark
-        small>
-          <v-icon
-            v-if="add">
-            mdi-content-save
-          </v-icon>
-          <v-icon
-            v-else>
-            mdi-plus
-          </v-icon>
-      </v-btn>
-    </v-fab-transition>
-    </div>
+      <div>
+        <v-fab-transition>
+          <v-btn v-show="add" @click="addPoint" color="green" fab dark small>
+            <v-icon>mdi-vector-point</v-icon>
+          </v-btn>
+        </v-fab-transition>
+        <v-fab-transition>
+          <v-btn v-show="add" @click="addLine" color="blue" fab dark small>
+            <v-icon>mdi-vector-polyline</v-icon>
+          </v-btn>
+        </v-fab-transition>
+        <v-fab-transition>
+          <v-btn v-show="add" @click="addPolygon" color="orange" fab dark small>
+            <v-icon>mdi-vector-polygon</v-icon>
+          </v-btn>
+        </v-fab-transition>
+        <v-fab-transition>
+          <v-btn
+            v-show="enableEdit"
+            @click="addFeature"
+            color="pink"
+            fab
+            dark
+            small
+          >
+            <v-icon v-if="add">
+              mdi-content-save
+            </v-icon>
+            <v-icon v-else>
+              mdi-plus
+            </v-icon>
+          </v-btn>
+        </v-fab-transition>
+      </div>
     </v-layout>
-
   </div>
-
 </template>
 
 <script>
 import Map from 'ol/Map'
 //import GeoJSON from 'ol/format/GeoJSON';
-import OpenLayersView from 'ol/View';
-import GeoJSON from 'ol/format/GeoJSON';
-import {bbox as bboxStrategy} from 'ol/loadingstrategy';
-import {Stroke, Style} from 'ol/style';
-import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
-import {OSM, Vector as VectorSource} from 'ol/source';
-import {Draw, Modify, Snap} from 'ol/interaction';
+import OpenLayersView from 'ol/View'
+import GeoJSON from 'ol/format/GeoJSON'
+import { bbox as bboxStrategy } from 'ol/loadingstrategy'
+import { Stroke, Style } from 'ol/style'
+import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
+import { OSM, Vector as VectorSource } from 'ol/source'
+import { Draw, Modify, Snap } from 'ol/interaction'
 
 //import qs from 'qs';
 //import FileSaver from 'file-saver';
@@ -79,14 +58,14 @@ import {Draw, Modify, Snap} from 'ol/interaction';
 
 export default {
   name: 'MapLayer',
-  data () {
+  data() {
     return {
       map: null,
       layers: [],
       mapLayers: [],
       layerCnt: 0,
       metadata: null,
-
+      tmpLayer: null,
       add: false,
       enableEdit: false,
       curIdx: 0,
@@ -102,65 +81,74 @@ export default {
       feature_to_save: null,
       f: null,
       data_Projection: null,
-      op:null,
+      op: null,
     }
   },
   created() {
-    this.$bus.$on("change-visible", (idx) => {
+    this.$bus.$on('change-visible', (idx) => {
       if (this.mapLayers[idx] == null) {
-        this.loadLayer(idx);
-        this.mapLayers[idx] = this.wfsLayer;
-        this.map.addLayer(this.wfsLayer);
-        this.layers[idx].visible = true;
+        this.loadLayer(idx)
+        this.mapLayers[idx] = this.wfsLayer
+        this.map.addLayer(this.wfsLayer)
+        this.layers[idx].visible = true
       } else {
-        this.layers[idx].visible  = !this.layers[idx].visible ;
-        this.mapLayers[idx].setVisible(this.layers[idx].visible );
+        this.layers[idx].visible = !this.layers[idx].visible
+        this.mapLayers[idx].setVisible(this.layers[idx].visible)
       }
-    });
+    })
 
-    this.$bus.$on("change-edit", (idx) => {
-      this.curIdx = idx;
+    this.$bus.$on('change-edit', (idx) => {
+      this.curIdx = idx
       if (this.layers[idx].edit == false) {
-        this.layers[idx].edit = true;
-        this.enableEdit = true;
-        this.edit();
+        this.layers[idx].edit = true
+        this.enableEdit = true
+        this.edit()
       } else {
-        this.layers[idx].edit = false;
-        this.enableEdit = false;
-        this.map.removeInteraction(this.modify);
-        this.save();
+        this.layers[idx].edit = false
+        this.enableEdit = false
+        this.map.removeInteraction(this.modify)
+        this.save()
         //默认当不再编辑直接进行保存/Post数据
-        this.Post_data(this.op,this.metadata["layer"][idx].name);
+        this.Post_data(this.op, this.metadata['layer'][idx].name)
       }
     })
   },
-  mounted () {
-    this.clientHeight = `${document.documentElement.clientHeight}` - 64;
-    this.init();
+  mounted() {
+    this.clientHeight = `${document.documentElement.clientHeight}` - 64
+    this.init()
   },
   methods: {
-    init () {
+    init() {
       // Init layers metadata
-      this.$http.get("http://localhost:8080/getlayerinfo").then(
-        (response) => {
-          this.metadata = response.data
-          this.layerCnt = this.metadata.length;
-          this.layers = this.metadata.map(o => {return {
-            "id": o.LayerID, 
-            "name": o.LayerName,
-            "cnt": o.Count,
-            "type": o.Type,
-            "show": false,
-            "edit": false,
-          }});
-          this.$bus.$emit("layer-names", this.layers.map(o => {return o.name}));
-          this.mapLayers = Array.apply(null, Array(this.layerCnt)).map(function () {return null});
-        }
-      );
+      this.$http.get('http://localhost:8080/getlayerinfo').then((response) => {
+        this.metadata = response.data
+        this.layerCnt = this.metadata.length
+        this.layers = this.metadata.map((o) => {
+          return {
+            id: o.LayerID,
+            name: o.LayerName,
+            cnt: o.Count,
+            type: o.Type,
+            show: false,
+            edit: false,
+          }
+        })
+        this.$bus.$emit(
+          'layer-names',
+          this.layers.map((o) => {
+            return o.name
+          })
+        )
+        this.mapLayers = Array.apply(null, Array(this.layerCnt)).map(
+          function() {
+            return null
+          }
+        )
+      })
 
       this.osmLayer = new TileLayer({
-        source: new OSM()
-      });
+        source: new OSM(),
+      })
 
       this.map = new Map({
         controls: [],
@@ -169,33 +157,32 @@ export default {
         view: new OpenLayersView({
           projection: 'CRS:84',
           center: [116.3, 40],
-          zoom: 12
+          zoom: 12,
         }),
-      });
+      })
     },
     loadLayer(idx) {
       var wfsSource = new VectorSource({
         format: new GeoJSON(),
-        url: "http://localhost:8080/getlayer?id=" + this.layers[idx].id,
-        strategy: bboxStrategy
-      });
+        url: 'http://localhost:8080/getlayer?id=' + this.layers[idx].id,
+        strategy: bboxStrategy,
+      })
 
       this.wfsLayer = new VectorLayer({
         source: wfsSource,
         style: new Style({
           stroke: new Stroke({
             color: 'rgba(22, 59, 64, 1.0)',
-            width: 2
-          })
-        })
-      });
+            width: 2,
+          }),
+        }),
+      })
     },
     edit() {
       this.enableModify()
 
       // this.draw = new Draw();
       // this.snap = new Snap();
-
 
       // //点选、框选功能实现
       // //实现鼠标点击选择
@@ -239,140 +226,131 @@ export default {
       //   this.selectedFeatures.clear();
       // });
     },
-    save() {
-
-    },
+    save() {},
     enableModify() {
       //创建一个Modify控件，指定source参数来指定可以对哪些地图源进行图形编辑，
       //Map对象中加入Modify控件后，就可以使用鼠标对已绘制的图形进行编辑。除了可以用鼠标拖拽图形节点外，
       //也可以使用鼠标拖拽直线，这将会拖拽出新的节点。如果想删除某个节点，只需要按住键盘的Alt键，然后鼠标点击该节点即可
       this.modify = new Modify({
-        source: this.mapLayers[this.curIdx].getSource()
-      });
+        source: this.mapLayers[this.curIdx].getSource(),
+      })
 
       // 将Modify控件加入到Map对象中
-      this.map.addInteraction(this.modify);
-      this.op = 'Modify';
+      this.map.addInteraction(this.modify)
+      this.op = 'Modify'
     },
     addFeature() {
       if (this.add == true) {
-        this.add = false;
-        this.enableModify();
+        this.add = false
+        this.enableModify()
       } else {
-        this.add = true;
-        this.map.removeInteraction(this.draw);
+        this.add = true
+        this.tmpLayer = new VectorLayer()
+        this.map.removeInteraction(this.draw)
       }
     },
     addPoint() {
-      this.map.removeInteraction(this.draw);
+      this.map.removeInteraction(this.draw)
       this.draw = new Draw({
-        source: this.mapLayers[this.curIdx].getSource(),
-        type: 'Point'
-      });
-      this.map.addInteraction(this.draw);
+        // source: this.mapLayers[this.curIdx].getSource(),
+        source: this.tmpLayer.getSource(),
+        type: 'Point',
+      })
+      this.map.addInteraction(this.draw)
     },
     addLine() {
-      this.map.removeInteraction(this.draw);
+      this.map.removeInteraction(this.draw)
       this.draw = new Draw({
         source: this.mapLayers[this.curIdx].getSource(),
-        type: 'LineString'
-      });
-      this.map.addInteraction(this.draw);
+        source: this.tmpLayer.getSource(),
+        type: 'LineString',
+      })
+      this.map.addInteraction(this.draw)
     },
     addPolygon() {
-      this.map.removeInteraction(this.draw);
+      this.map.removeInteraction(this.draw)
       this.draw = new Draw({
-        source: this.mapLayers[this.curIdx].getSource(),
-        type: 'Polygon'
-      });
-      this.map.addInteraction(this.draw);
+        // source: this.mapLayers[this.curIdx].getSource(),
+        source: this.tmpLayer.getSource(),
+        type: 'Polygon',
+      })
+      this.map.addInteraction(this.draw)
     },
 
-    Get_data(){
-
-    },
-
+    Get_data() {},
 
     //保存修改过后的要素
-    Post_data(_op, _layer_id){
-      this.feature_to_save = this.mapLayers[this.curIdx].getSource().getFeatures();
-      this.f = this.feature_to_save[0].getGeometry();
-      //this.data_Projection = new Projection({code: "EPSG:4326"});
-      //var code = this.data_Projection.getCode();
-      
-      const format = new GeoJSON({featureProjection: 'EPSG:4326'});
+    Post_data(_op, _layer_id) {
+      this.feature_to_save = this.tmpLayer.getSource().getFeatures()
+      // this.f = this.feature_to_save[0].getGeometry();
 
-      let Expotrt_json = format.writeFeaturesObject(this.feature_to_save);
-      
+      const format = new GeoJSON({ featureProjection: 'EPSG:4326' })
+      let Expotrt_json = format.writeFeaturesObject(this.feature_to_save)
 
-      const json_data  =JSON.stringify(Expotrt_json);
+      const json_data = JSON.stringify(Expotrt_json)
       //const blob = new Blob([json_data], {type: ''});
       //FileSaver.saveAs(blob,'1.json');
 
       this.$http({
-                  url: 'http://162.105.17.227:8080/post',
-                  method:'post',
-                  //发送格式为json
-                  data:{
-                    'op':_op,
-                    'Layer_id':_layer_id,
-                    'geojson':json_data
-                  },
-                  
-                  //headers: {'Content-Type':'application/x-www-form-urlencoded'}
-                  headers: {'Content-Type': 'application/json; charset=UTF-8'}
-                }).then(function(return_data)  
-          {
-            alert(return_data)
-          },function(return_data)
-          {
-            alert(return_data)
-          });
+        url: 'http://162.105.17.227:8080/post',
+        method: 'post',
+        //发送格式为json
+        data: {
+          op: _op,
+          Layer_id: _layer_id,
+          geojson: json_data,
+        },
 
+        //headers: {'Content-Type':'application/x-www-form-urlencoded'}
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+      }).then(
+        function(return_data) {
+          alert(return_data)
+        },
+        function(return_data) {
+          alert(return_data)
+        }
+      )
     },
 
     //地图增加绘制与拖动控件
-    AddInteraction(){
-      if(this.type != "None"){
-        var typeChosen = this.type;
-        var geometryFunction;
-        switch(this.type){
+    AddInteraction() {
+      if (this.type != 'None') {
+        var typeChosen = this.type
+        var geometryFunction
+        switch (this.type) {
           // 生成规则的四边形的图形函数
-          case "Square":
-            typeChosen = 'Circle';
-            geometryFunction = Draw.createRegularPolygon(4);
-            break;
+          case 'Square':
+            typeChosen = 'Circle'
+            geometryFunction = Draw.createRegularPolygon(4)
+            break
           // 生成盒状图形函数
-          case "Box":
-            typeChosen =  'Circle';
-            geometryFunction = Draw.createBox();
-            break;
-          default:break;
+          case 'Box':
+            typeChosen = 'Circle'
+            geometryFunction = Draw.createBox()
+            break
+          default:
+            break
         }
 
         //初始化Draw绘图控件
         this.draw = new Draw({
-          source:this.sourceChosen,
+          source: this.sourceChosen,
           type: typeChosen,
-          geometryFunction: geometryFunction
-        });
+          geometryFunction: geometryFunction,
+        })
 
         //将Draw控件加入地图
-        this.map.addInteraction(this.draw);
+        this.map.addInteraction(this.draw)
 
         //初始化Snap控件
         this.snap = new Snap({
-          source: this.sourceChosen
+          source: this.sourceChosen,
         })
         this.map.addInteraction(this.snap)
-
       }
-    }
+    },
   },
-
-  
-  
-  
 }
 </script>
 
@@ -384,14 +362,13 @@ export default {
   z-index: 5;
 }
 #ol-dragbox {
-  background-color: rgba(255,255,255,0.4);
-  border-color: rgba(100,150,0,1);
+  background-color: rgba(255, 255, 255, 0.4);
+  border-color: rgba(100, 150, 0, 1);
 }
 
 .tool-panel {
-  position: fixed; 
-  bottom: 0; 
-  right: 0; 
+  position: fixed;
+  bottom: 0;
+  right: 0;
 }
 </style>
-

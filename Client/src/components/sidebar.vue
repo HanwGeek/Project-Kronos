@@ -5,7 +5,8 @@
       :width="show ? 256 : 56"
       permanent
       expand-on-hover
-      app>
+      app
+    >
     </v-navigation-drawer>
   </div>
 </template>
@@ -13,21 +14,19 @@
 <script>
 export default {
   name: 'SideBar',
-  data () {
+  data() {
     return {
       show: false,
       drawer: null,
-      layers: ["crop", "1"]
+      layers: ['crop', '1'],
     }
   },
   created() {
-    this.$bus.$on("showAside", (show) => {
-      this.show = show;
+    this.$bus.$on('showAside', (show) => {
+      this.show = show
     })
   },
-  methods: {
-
-  }
+  methods: {},
 }
 </script>
 
