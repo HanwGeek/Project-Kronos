@@ -185,7 +185,7 @@ func (l *Layer) DeleteFeature(id_ int) {
 	delete(l.feat, id_)
 }
 
-func (l Layer) ExportGeoJSON() map[string]interface{} {
+func (l Layer) ExportMap() map[string]interface{} {
 	mj := make(map[string]interface{})
 	mj["type"] = "FeatureCollection"
 	var featArray []map[string]interface{}
@@ -194,6 +194,12 @@ func (l Layer) ExportGeoJSON() map[string]interface{} {
 		featArray = append(featArray, feature.ExportMap())
 	}
 	mj["features"] = featArray
-	// s, _ := json.Marshal(mj)
 	return mj
 }
+
+func (l Layer) ExportGeoJSON() string {
+	mj := l.ExportMap()
+	s, _ := json.Marshal(mj)
+	return string(s)
+}
+

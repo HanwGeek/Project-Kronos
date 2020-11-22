@@ -180,5 +180,9 @@ func main(){
 	fmt.Println(json3)
 	l6r:=*NewLayerfromGeoJSON(json3,61)
 	fmt.Println(l6r)
+	json4:=fu.ExportGeoJSON()
+	fmt.Println(json4)
+	fo:=NewFeatureFromJSON(json4)
+	fmt.Println(fo.ExportGeoJSON())
 }
 */
