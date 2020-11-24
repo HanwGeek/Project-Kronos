@@ -1,5 +1,9 @@
 package geom
 
+import (
+	"encoding/json"
+)
+
 // Feature means a combination of geometry and attributes.
 type Feature struct {
 	id   int
@@ -9,6 +13,90 @@ type Feature struct {
 
 func NewFeatureByGeom(geom_ Geometry) *Feature {
 	return &Feature{-1, geom_, make(map[string]interface{})}
+}
+
+func NewFeatureFromJSON(json_ string) *Feature {
+	var m map[string]interface{}
+	err := json.Unmarshal([]byte(json_), &m)
+	if err != nil {
+		fmt.Println("err = ", err)
+		return nil
+	}
+
+	var feat_temp Feature
+	switch geom_ := m["geometry"].(type) {
+	case map[string]interface{}:
+		if geom_["type"] == "Point" {
+			var geom_temp Point
+			switch pos_ := geom_["coordinates"].(type) {
+			case []interface{}:
+				switch x_ := pos_[0].(type) {
+				case float64:
+					switch y_ := pos_[1].(type) {
+					case float64:
+						geom_temp.SetPos(x_, y_)
+					}
+				}
+			}
+			feat_temp = *NewFeatureByGeom(geom_temp)
+		} else if geom_["type"] == "LineString" {
+			var geom_temp LineString
+			switch pos_ := geom_["coordinates"].(type) {
+			case []interface{}:
+				for j := 0; j < len(pos_); j++ {
+					switch point_ := pos_[j].(type) {
+					case []interface{}:
+						switch x_ := point_[0].(type) {
+						case float64:
+							switch y_ := point_[1].(type) {
+							case float64:
+								geom_temp.AddPoint(x_, y_)
+							}
+						}
+					}
+				}
+			}
+			feat_temp = *NewFeatureByGeom(geom_temp)
+		} else {
+			var geom_temp Polygon
+			switch pos_ := geom_["coordinates"].(type) {
+			case []interface{}:
+				switch posi_ := pos_[0].(type) {
+				case []interface{}:
+					for r := 0; r < len(posi_); r++ {
+						var ring_temp LineString
+						switch ring_ := posi_[r].(type) {
+						case []interface{}:
+							for j := 0; j < len(ring_)-1; j++ {
+								switch point_ := ring_[j].(type) {
+								case []interface{}:
+									switch x_ := point_[0].(type) {
+									case float64:
+										switch y_ := point_[1].(type) {
+										case float64:
+											ring_temp.AddPoint(x_, y_)
+										}
+									}
+								}
+							}
+						}
+						geom_temp.AddRing(ring_temp)
+					}
+				}
+			}
+			feat_temp = *NewFeatureByGeom(geom_temp)
+		}
+	}
+	switch attr_ := m["properties"].(type) {
+	case map[string]interface{}:
+		feat_temp.attr = attr_
+	}
+	return &feat_temp
+}
+
+// Add by Ganmin Yin.
+func NewFeature(geom_ Geometry, attr_ map[string]interface{}) *Feature {
+	return &Feature{-1, geom_, attr_}
 }
 
 func (feat Feature) GetID() int {
@@ -55,4 +143,17 @@ func (feat *Feature) DeleteAttribute(attrname string) {
 	if ok {
 		delete(feat.attr, attrname)
 	}
+}
+
+func (feat *Feature) ExportMap() map[string]interface{} {
+	mj := make(map[string]interface{})
+	mj["type"] = "Feature"
+	mj["properties"] = feat.attr
+	mj["geometry"] = feat.geom.ExportMap()
+	return mj
+}
+
+func (feat *Feature) ExportGeoJSON() string {
+	s, _ := json.Marshal(feat.ExportMap())
+	return string(s)
 }

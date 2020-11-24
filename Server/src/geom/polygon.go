@@ -1,6 +1,9 @@
 package geom
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type Polygon struct {
 	// rings[0] is the outer ring, the others are the inner rings
@@ -65,4 +68,32 @@ func (p Polygon) ExportWKT() string {
 	}
 	wkt += ")"
 	return wkt
+}
+
+func (p Polygon) ExportMap() map[string]interface{} {
+	mj := make(map[string]interface{})
+	mj["type"] = "MultiPolygon"
+	var geomArray [][][][]float64
+	var polygonArray [][][]float64
+	for i := 0; i < p.NInnerRings()+1; i++ {
+		n := p.rings[i].NPoints()
+		var ringArray [][]float64
+		var pointArray []float64
+		for j := 0; j < n; j++ {
+			pointArray = make([]float64, 2)
+			pointArray[0] = p.rings[i].pos[j].x
+			pointArray[1] = p.rings[i].pos[j].y
+			ringArray = append(ringArray, pointArray)
+		}
+		ringArray = append(ringArray, ringArray[0])
+		polygonArray = append(polygonArray, ringArray)
+	}
+	geomArray = append(geomArray, polygonArray)
+	mj["coordinates"] = geomArray
+	return mj
+}
+
+func (p Polygon) ExportGeoJSON() string {
+	s, _ := json.Marshal(p.ExportMap())
+	return string(s)
 }

@@ -1,54 +1,41 @@
 package ogcservice
 
 import (
-	"fmt"
 	"kronos/src/geom"
-
-	"github.com/go-pg/pg"
 )
 
-const (
-	hostname = "162.105.17.227:5432"
-	user     = "han"
-	password = "wh123"
-	dbname   = "features"
-)
-
-var db *pg.DB
-
-// Manager manages the layers
-type Manager struct {
-	layers []geom.Layer
+// LayerManager manage layers in memory
+type LayerManager struct {
+	layers   map[int]geom.Layer
+	layerIDs []int
 }
 
-type LayerInfo struct {
-	tableName struct{} `pg:"layer_info"`
-	LayerID   int      `pg:"layer_id"`
-	LayerName string   `pg:"layer_name"`
-	Type      int      `pg:"type"`
-	Count     int      `pg:"count"`
-}
-
-// Connect is to connect postgresql database
-func Connect() {
-	if db == nil {
-		db = pg.Connect(&pg.Options{
-			Addr:     hostname,
-			User:     user,
-			Password: password,
-			Database: dbname,
-		})
+func NewManager() *LayerManager {
+	return &LayerManager{
+		layers: make(map[int]geom.Layer),
 	}
-	GetLayerInfo()
 }
 
-// GetLayerInfo return layer metadata
-func GetLayerInfo() []LayerInfo {
-	var model []LayerInfo
-	err := db.Model(&model).Select()
-	if err != nil {
-		fmt.Printf("error: %v\n", err)
-		return nil
+// GetLayerinfo return layer info for a `GET` request
+func (lm *LayerManager) GetLayerinfo() []LayerInfo {
+	return GetLayerInfo()
+}
+
+// GetLayerContent return layer content for a `GET` request
+func (lm *LayerManager) GetLayerContent(layerID int) map[string]interface{} {
+	// if layer is loaded
+	if layer, ok := lm.layers[layerID]; ok {
+		return layer.ExportGeoJSON()
 	}
-	return model
+
+	// Load layer
+	layer := GetLayerById(layerID)
+	lm.layers[layerID] = layer
+
+	return layer.ExportGeoJSON()
+}
+
+// OperOnLayer operates `ops` on layer for a `POST` request
+func (lm *LayerManager) OperOnLayer(OpID int) {
+
 }

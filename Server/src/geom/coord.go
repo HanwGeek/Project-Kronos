@@ -12,3 +12,15 @@ type Coord3D struct {
 	y float64
 	z float64
 }
+
+func NewCoord(pos []float64) Coord {
+	return Coord{pos[0], pos[1]}
+}
+
+func NewCoordList(pos [][]float64) []Coord {
+	var coordList []Coord
+	for _, c := range pos {
+		coordList = append(coordList, NewCoord(c))
+	}
+	return coordList
+}

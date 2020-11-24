@@ -1,20 +1,18 @@
 <template>
-  <div id='footer'>
-    <div id='title'>{{title}}</div>
+  <div id="footer">
+    <div id="title">{{ title }}</div>
   </div>
 </template>
-
 
 <script>
 export default {
   name: 'Footer',
-  data () {
+  data() {
     return {
-      title: "Powered By Vue.js & Gin",
+      title: 'Powered By Vue.js & Gin',
     }
   },
-  methods: {
-  }
+  methods: {},
 }
 </script>
 
@@ -29,7 +27,7 @@ export default {
   bottom: 0;
   z-index: 100;
   background-color: #fff;
-  box-shadow: 0 0 1px rgba(0,0,0,0.25);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.25);
 }
 #title {
   font-size: 12px;
