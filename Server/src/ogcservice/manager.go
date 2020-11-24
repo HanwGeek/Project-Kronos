@@ -25,14 +25,14 @@ func (lm *LayerManager) GetLayerinfo() []LayerInfo {
 func (lm *LayerManager) GetLayerContent(layerID int) map[string]interface{} {
 	// if layer is loaded
 	if layer, ok := lm.layers[layerID]; ok {
-		return layer.ExportGeoJSON()
+		return layer.ExportMap()
 	}
 
 	// Load layer
 	layer := GetLayerById(layerID)
 	lm.layers[layerID] = layer
 
-	return layer.ExportGeoJSON()
+	return layer.ExportMap()
 }
 
 // OperOnLayer operates `ops` on layer for a `POST` request
