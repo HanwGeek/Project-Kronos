@@ -72,9 +72,8 @@ func (p Polygon) ExportWKT() string {
 
 func (p Polygon) ExportMap() map[string]interface{} {
 	mj := make(map[string]interface{})
-	mj["type"] = "MultiPolygon"
-	var geomArray [][][][]float64
-	var polygonArray [][][]float64
+	mj["type"] = "Polygon"
+	var geomArray [][][]float64
 	for i := 0; i < p.NInnerRings()+1; i++ {
 		n := p.rings[i].NPoints()
 		var ringArray [][]float64
@@ -86,9 +85,8 @@ func (p Polygon) ExportMap() map[string]interface{} {
 			ringArray = append(ringArray, pointArray)
 		}
 		ringArray = append(ringArray, ringArray[0])
-		polygonArray = append(polygonArray, ringArray)
+		geomArray = append(geomArray, ringArray)
 	}
-	geomArray = append(geomArray, polygonArray)
 	mj["coordinates"] = geomArray
 	return mj
 }

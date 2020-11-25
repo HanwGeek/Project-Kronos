@@ -62,21 +62,18 @@ func NewFeatureFromJSON(json_ string) *Feature {
 			var geom_temp Polygon
 			switch pos_ := geom_["coordinates"].(type) {
 			case []interface{}:
-				switch posi_ := pos_[0].(type) {
-				case []interface{}:
-					for r := 0; r < len(posi_); r++ {
-						var ring_temp LineString
-						switch ring_ := posi_[r].(type) {
-						case []interface{}:
-							for j := 0; j < len(ring_)-1; j++ {
-								switch point_ := ring_[j].(type) {
-								case []interface{}:
-									switch x_ := point_[0].(type) {
+				for r := 0; r < len(pos_); r++ {
+					var ring_temp LineString
+					switch ring_ := pos_[r].(type) {
+					case []interface{}:
+						for j := 0; j < len(ring_)-1; j++ {
+							switch point_ := ring_[j].(type) {
+							case []interface{}:
+								switch x_ := point_[0].(type) {
+								case float64:
+									switch y_ := point_[1].(type) {
 									case float64:
-										switch y_ := point_[1].(type) {
-										case float64:
-											ring_temp.AddPoint(x_, y_)
-										}
+										ring_temp.AddPoint(x_, y_)
 									}
 								}
 							}
