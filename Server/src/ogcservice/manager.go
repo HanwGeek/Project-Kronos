@@ -41,6 +41,8 @@ func (lm *LayerManager) OperOnLayer(OpID int, LayerID int, Feat map[string]inter
 	switch OpID {
 	case 1:
 		lm.AddFeatureToLayer(LayerID, feats.([]interface{}))
+	case 2:
+		lm.EditFeatureToLayer(LayerID, feats.([]interface{}))
 	}
 }
 
@@ -50,6 +52,9 @@ func (lm *LayerManager) AddFeatureToLayer(LayerID int, feats []interface{}) {
 	}
 }
 
-func (lm *LayerManager) EditFeatureToLaye(LayerID int, feats []interface{}) {
-
+func (lm *LayerManager) EditFeatureToLayer(LayerID int, feats []interface{}) {
+	for _, feat := range feats {
+		feat_ := feat.(map[string]interface{})
+		lm.layers[LayerID].ReplaceFeature(int(feat_["id"].(float64)), *geom.NewFeatureFromJSON(feat_))
+	}
 }

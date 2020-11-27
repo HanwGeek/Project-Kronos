@@ -146,6 +146,7 @@ func (feat *Feature) DeleteAttribute(attrname string) {
 func (feat *Feature) ExportMap() map[string]interface{} {
 	mj := make(map[string]interface{})
 	mj["type"] = "Feature"
+	mj["id"] = feat.GetID()
 	mj["properties"] = feat.attr
 	mj["geometry"] = feat.geom.ExportMap()
 	return mj
