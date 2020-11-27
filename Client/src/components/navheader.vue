@@ -45,13 +45,6 @@
                 </v-icon>
               </v-btn>
             </v-list-item-action>
-            <v-list-item-action>
-              <v-btn class="float" @click="changeEdit(i)" icon>
-                <v-icon color="blue darken-2">
-                  mdi-pencil
-                </v-icon>
-              </v-btn>
-            </v-list-item-action>
           </v-list-item>
         </v-list-item-group>
       </v-list>

@@ -43,14 +43,14 @@
 <script>
 import Map from 'ol/Map'
 //import GeoJSON from 'ol/format/GeoJSON';
-import OpenLayersView from 'ol/View';
-import GeoJSON from 'ol/format/GeoJSON';
-import {bbox as bboxStrategy} from 'ol/loadingstrategy';
-import {Stroke, Style} from 'ol/style';
-import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
-import {OSM, Vector as VectorSource} from 'ol/source';
-import {Draw, Modify, Snap, DragBox, Select} from 'ol/interaction';
-import {platformModifierKeyOnly} from 'ol/events/condition';
+import OpenLayersView from 'ol/View'
+import GeoJSON from 'ol/format/GeoJSON'
+import { bbox as bboxStrategy } from 'ol/loadingstrategy'
+import { Stroke, Style } from 'ol/style'
+import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
+import { OSM, Vector as VectorSource } from 'ol/source'
+import { Draw, Modify, Snap, Select } from 'ol/interaction'
+// import { platformModifierKeyOnly } from 'ol/events/condition'
 
 //import qs from 'qs';
 //import FileSaver from 'file-saver';
@@ -74,16 +74,18 @@ export default {
       type: '',
       draw: null,
       snap: null,
-      modify: null,
       sourceChosen: null,
       layerChosen: null,
-      select:null,
+      select: null,
       selectedFeatures: null,
+      modify: null,
+      modifyFeatures: [],
       wfsLayer: null,
       feature_to_save: null,
       f: null,
       data_Projection: null,
       op: null,
+      surl: 'http://162.105.17.227:8088/',
     }
   },
   created() {
@@ -104,6 +106,7 @@ export default {
       if (this.layers[idx].edit == false) {
         this.layers[idx].edit = true
         this.enableEdit = true
+        this.modifyFeatures = []
         this.edit()
       } else {
         this.layers[idx].edit = false
@@ -111,7 +114,7 @@ export default {
         this.map.removeInteraction(this.modify)
         this.save()
         //默认当不再编辑直接进行保存/Post数据
-        this.Post_data(this.op, this.metadata['layer'][idx].name)
+        // this.Post_data(this.op, this.metadata['layer'][idx].name)
       }
     })
   },
@@ -122,7 +125,7 @@ export default {
   methods: {
     init() {
       // Init layers metadata
-      this.$http.get('http://localhost:8080/getlayerinfo').then((response) => {
+      this.$http.get(this.surl + 'getlayerinfo').then((response) => {
         this.metadata = response.data
         this.layerCnt = this.metadata.length
         this.layers = this.metadata.map((o) => {
@@ -154,7 +157,7 @@ export default {
 
       this.map = new Map({
         controls: [],
-        layers: [this.osmLayer],
+        layers: [],
         target: 'map',
         view: new OpenLayersView({
           projection: 'CRS:84',
@@ -166,7 +169,7 @@ export default {
     loadLayer(idx) {
       var wfsSource = new VectorSource({
         format: new GeoJSON(),
-        url: 'http://localhost:8080/getlayer?id=' + this.layers[idx].id,
+        url: this.surl + 'getlayer?id=' + this.layers[idx].id,
         strategy: bboxStrategy,
       })
 
@@ -181,103 +184,85 @@ export default {
       })
     },
     edit() {
-      this.enableSelect();
-      this.enableModify();
-      
-      // this.draw = new Draw();
-      // this.snap = new Snap();
-
-      // //点选、框选功能实现
-      // //实现鼠标点击选择
-      // var select = new Select();
-      // this.map.addInteraction(select);
-      // this.selectedFeatures = select.getFeatures();
-
-      // //鼠标框选
-      // var dragBox = new DragBox();
-
-      // this.map.addInteraction(dragBox);
-
-      // dragBox.on('boxend', () => {
-      // // 视图没有进行旋转变化时，框选范围可以视为和实际范围一致，因此矢量要素和框选相交时可以视为被选中
-      // var rotation = this.map.getView().getRotation();
-      // var oblique = rotation % (Math.PI / 2) !== 0;
-      // var candidateFeatures = oblique ? [] : this.selectedFeatures;
-      // var extent = dragBox.getGeometry().getExtent();
-      // this.sourceChosen.forEachFeatureIntersectingExtent(extent, function (feature) {
-      //   candidateFeatures.push(feature);
-      // });
-
-      // // 如果视图存在旋转变化，需要先把方框和要素同时旋转
-      // if (oblique) {
-      //     var anchor = [0, 0];
-      //     var geometry = dragBox.getGeometry().clone();
-      //     geometry.rotate(-rotation, anchor);
-      //     var extent$1 = geometry.getExtent();
-      //     candidateFeatures.forEach(function (feature) {
-      //     var geometry = feature.getGeometry().clone();
-      //     geometry.rotate(-rotation, anchor);
-      //     if (geometry.intersectsExtent(extent$1)) {
-      //         this.selectedFeatures.push(feature);
-      //     }
-      //     });
-      // }
-      // });
-
-      // //点击、绘制新的方框时清空选择列表
-      // dragBox.on('boxstart', () => {
-      //   this.selectedFeatures.clear();
-      // });
+      this.enableSelect()
+      this.enableModify()
     },
     save() {
+      // this.f = this.feature_to_save[0].getGeometry();
 
+      const format = new GeoJSON({ featureProjection: 'EPSG:4326' })
+
+      //const blob = new Blob([json_data], {type: ''});
+      //FileSaver.saveAs(blob,'1.json');
+
+      this.$http({
+        url: this.surl + 'post',
+        method: 'post',
+        //发送格式为json
+        data: {
+          op: 1,
+          Layer_id: this.curIdx,
+          geojson: JSON.stringify(
+            format.writeFeaturesObject(this.modifyFeatures)
+          ),
+        },
+
+        //headers: {'Content-Type':'application/x-www-form-urlencoded'}
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+      })
     },
-    enableSelect(){
-//允许通过点选或者框选进行选择矢量要素
+
+    enableSelect() {
+      //允许通过点选或者框选进行选择矢量要素
       //点选、框选功能实现
       //实现鼠标点击选择
-      this.select = new Select();
-      this.map.addInteraction(this.select);
-      this.selectedFeatures = this.select.getFeatures();
+      this.select = new Select()
+      this.select.on('select', (e) => {
+        // console.log(e.selected[0])
+        this.modifyFeatures.push(e.selected[0])
+      })
+      this.map.addInteraction(this.select)
+      this.selectedFeatures = this.select.getFeatures()
 
       //鼠标框选(ctrl+拖动)
-      this.dragBox = new DragBox({
-        condition: platformModifierKeyOnly,
-      });
-      this.map.addInteraction(this.dragBox);
+      // this.dragBox = new DragBox({
+      //   condition: platformModifierKeyOnly,
+      // })
+      // this.map.addInteraction(this.dragBox)
 
-      this.dragBox.on('boxend', () => {
-      // 视图没有进行旋转变化时，框选范围可以视为和实际范围一致，因此矢量要素和框选相交时可以视为被选中
-      var rotation = this.map.getView().getRotation();
-      var oblique = rotation % (Math.PI / 2) !== 0;
-      var candidateFeatures = oblique ? [] : this.selectedFeatures;
-      var extent = this.dragBox.getGeometry().getExtent();
-      
-      this.mapLayers[this.curIdx].getSource().forEachFeatureIntersectingExtent(extent, function (feature) {
-        candidateFeatures.push(feature);
-      });
+      // this.dragBox.on('boxend', () => {
+      //   // 视图没有进行旋转变化时，框选范围可以视为和实际范围一致，因此矢量要素和框选相交时可以视为被选中
+      //   var rotation = this.map.getView().getRotation()
+      //   var oblique = rotation % (Math.PI / 2) !== 0
+      //   var candidateFeatures = oblique ? [] : this.selectedFeatures
+      //   var extent = this.dragBox.getGeometry().getExtent()
 
-      // 如果视图存在旋转变化，需要先把方框和要素同时旋转
-      if (oblique) {
-          var anchor = [0, 0];
-          var geometry = this.dragBox.getGeometry().clone();
-          geometry.rotate(-rotation, anchor);
-          var extent$1 = geometry.getExtent();
-          candidateFeatures.forEach(function (feature) {
-          var geometry = feature.getGeometry().clone();
-          geometry.rotate(-rotation, anchor);
-          if (geometry.intersectsExtent(extent$1)) {
-              this.selectedFeatures.push(feature);
-          }
-          });
-      }
-      });
+      //   this.mapLayers[this.curIdx]
+      //     .getSource()
+      //     .forEachFeatureIntersectingExtent(extent, function(feature) {
+      //       candidateFeatures.push(feature)
+      //     })
+
+      //   // 如果视图存在旋转变化，需要先把方框和要素同时旋转
+      //   if (oblique) {
+      //     var anchor = [0, 0]
+      //     var geometry = this.dragBox.getGeometry().clone()
+      //     geometry.rotate(-rotation, anchor)
+      //     var extent$1 = geometry.getExtent()
+      //     candidateFeatures.forEach(function(feature) {
+      //       var geometry = feature.getGeometry().clone()
+      //       geometry.rotate(-rotation, anchor)
+      //       if (geometry.intersectsExtent(extent$1)) {
+      //         this.selectedFeatures.push(feature)
+      //       }
+      //     })
+      //   }
+      // })
 
       //点击、绘制新的方框时清空选择列表
-      this.dragBox.on('boxstart', () => {
-        this.selectedFeatures.clear();
-      });
-      
+      // this.dragBox.on('boxstart', () => {
+      //   this.selectedFeatures.clear()
+      // })
     },
     enableModify() {
       //创建一个Modify控件，指定source参数来指定可以对哪些地图源进行图形编辑，这里仅允许对选中的对象进行编辑
@@ -285,11 +270,11 @@ export default {
       //也可以使用鼠标拖拽直线，这将会拖拽出新的节点。如果想删除某个节点，只需要按住键盘的Alt键，然后鼠标点击该节点即可
       this.modify = new Modify({
         //source: this.mapLayers[this.curIdx].getSource()
-        features: this.select.getFeatures()
-      });
+        features: this.select.getFeatures(),
+      })
 
       // 将Modify控件加入到Map对象中
-      this.map.addInteraction(this.modify);
+      this.map.addInteraction(this.modify)
     },
     addFeature() {
       if (this.add == true) {
@@ -313,7 +298,7 @@ export default {
     addLine() {
       this.map.removeInteraction(this.draw)
       this.draw = new Draw({
-        source: this.mapLayers[this.curIdx].getSource(),
+        // source: this.mapLayers[this.curIdx].getSource(),
         source: this.tmpLayer.getSource(),
         type: 'LineString',
       })
@@ -344,7 +329,7 @@ export default {
       //FileSaver.saveAs(blob,'1.json');
 
       this.$http({
-        url: 'http://162.105.17.227:8080/post',
+        url: this.surl + 'post',
         method: 'post',
         //发送格式为json
         data: {
@@ -355,14 +340,7 @@ export default {
 
         //headers: {'Content-Type':'application/x-www-form-urlencoded'}
         headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-      }).then(
-        function(return_data) {
-          alert(return_data)
-        },
-        function(return_data) {
-          alert(return_data)
-        }
-      )
+      })
     },
 
     //地图增加绘制与拖动控件
