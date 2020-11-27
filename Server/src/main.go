@@ -9,9 +9,9 @@ import (
 )
 
 type ReqData struct {
-	Op      int         `json:"op" binding:"required"`
-	LayerID int         `json:"layer_id" binding:"required"`
-	Feat    interface{} `json:feats`
+	Op      int         `json:"op"`
+	LayerID int         `json:"layer_id"`
+	Feat    interface{} `json:"feats"`
 }
 
 func main() {
@@ -54,7 +54,7 @@ func main() {
 		var req ReqData
 
 		if c.BindJSON(&req) == nil {
-
+			lm.OperOnLayer(req.Op, req.LayerID, req.Feat.(map[string]interface{}))
 			c.JSON(200, gin.H{
 				"status": "SUCCESS",
 			})

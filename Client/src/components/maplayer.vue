@@ -211,7 +211,6 @@ export default {
         headers: { 'Content-Type': 'application/json; charset=UTF-8' },
       })
     },
-
     enableSelect() {
       //允许通过点选或者框选进行选择矢量要素
       //点选、框选功能实现
@@ -280,9 +279,33 @@ export default {
       if (this.add == true) {
         this.add = false
         this.enableModify()
+        const format = new GeoJSON({ featureProjection: 'EPSG:4326' })
+
+        this.$http({
+          url: this.surl + 'post',
+          method: 'post',
+          //发送格式为json
+          data: {
+            op: 1,
+            layer_id: this.curIdx,
+            feats: format.writeFeaturesObject(
+              this.tmpLayer.getSource().getFeatures()
+            ),
+          },
+          headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        })
       } else {
         this.add = true
-        this.tmpLayer = new VectorLayer()
+        this.tmpLayer = new VectorLayer({
+          source: new VectorSource(),
+          style: new Style({
+            stroke: new Stroke({
+              color: 'rgba(22, 59, 64, 1.0)',
+              width: 2,
+            }),
+          }),
+        })
+        this.map.addLayer(this.tmpLayer)
         this.map.removeInteraction(this.draw)
       }
     },
@@ -317,16 +340,8 @@ export default {
     Get_data() {},
 
     //保存修改过后的要素
-    Post_data(_op, _layer_id) {
-      this.feature_to_save = this.tmpLayer.getSource().getFeatures()
-      // this.f = this.feature_to_save[0].getGeometry();
-
+    postData(_op, _layer_id) {
       const format = new GeoJSON({ featureProjection: 'EPSG:4326' })
-      let Expotrt_json = format.writeFeaturesObject(this.feature_to_save)
-
-      const json_data = JSON.stringify(Expotrt_json)
-      //const blob = new Blob([json_data], {type: ''});
-      //FileSaver.saveAs(blob,'1.json');
 
       this.$http({
         url: this.surl + 'post',
@@ -335,10 +350,10 @@ export default {
         data: {
           op: _op,
           Layer_id: _layer_id,
-          geojson: json_data,
+          geojson: JSON.stringify(
+            format.writeFeaturesObject(this.tmpLayer.getSource().getFeatures())
+          ),
         },
-
-        //headers: {'Content-Type':'application/x-www-form-urlencoded'}
         headers: { 'Content-Type': 'application/json; charset=UTF-8' },
       })
     },

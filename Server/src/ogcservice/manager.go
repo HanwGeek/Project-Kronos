@@ -36,19 +36,20 @@ func (lm *LayerManager) GetLayerContent(layerID int) map[string]interface{} {
 }
 
 // OperOnLayer operates `ops` on layer for a `POST` request
-func (lm *LayerManager) OperOnLayer(OpID int, LayerID int) {
+func (lm *LayerManager) OperOnLayer(OpID int, LayerID int, Feat map[string]interface{}) {
+	feats := Feat["features"]
 	switch OpID {
-	case 0:
-
+	case 1:
+		lm.AddFeatureToLayer(LayerID, feats.([]interface{}))
 	}
 }
 
-func (lm *LayerManager) AddFeatureToLayer(LayerID int, feats map[string]interface{}) {
+func (lm *LayerManager) AddFeatureToLayer(LayerID int, feats []interface{}) {
 	for _, feat := range feats {
 		lm.layers[LayerID].AddFeature(*geom.NewFeatureFromJSON(feat.(map[string]interface{})))
 	}
 }
 
-func (lm *LayerManager) EditFeatureToLaye(LayerID int, feats map[string]interface{}) {
+func (lm *LayerManager) EditFeatureToLaye(LayerID int, feats []interface{}) {
 
 }
