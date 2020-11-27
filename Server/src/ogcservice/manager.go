@@ -6,13 +6,13 @@ import (
 
 // LayerManager manage layers in memory
 type LayerManager struct {
-	layers   map[int]geom.Layer
+	layers   map[int]*geom.Layer
 	layerIDs []int
 }
 
 func NewManager() *LayerManager {
 	return &LayerManager{
-		layers: make(map[int]geom.Layer),
+		layers: make(map[int]*geom.Layer),
 	}
 }
 
@@ -30,12 +30,25 @@ func (lm *LayerManager) GetLayerContent(layerID int) map[string]interface{} {
 
 	// Load layer
 	layer := GetLayerById(layerID)
-	lm.layers[layerID] = layer
+	lm.layers[layerID] = &layer
 
 	return layer.ExportMap()
 }
 
 // OperOnLayer operates `ops` on layer for a `POST` request
-func (lm *LayerManager) OperOnLayer(OpID int) {
+func (lm *LayerManager) OperOnLayer(OpID int, LayerID int) {
+	switch OpID {
+	case 0:
+
+	}
+}
+
+func (lm *LayerManager) AddFeatureToLayer(LayerID int, feats map[string]interface{}) {
+	for _, feat := range feats {
+		lm.layers[LayerID].AddFeature(*geom.NewFeatureFromJSON(feat.(map[string]interface{})))
+	}
+}
+
+func (lm *LayerManager) EditFeatureToLaye(LayerID int, feats map[string]interface{}) {
 
 }

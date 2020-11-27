@@ -199,4 +199,3 @@ func (l Layer) ExportGeoJSON() string {
 	s, _ := json.Marshal(mj)
 	return string(s)
 }
-

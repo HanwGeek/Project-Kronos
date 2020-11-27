@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"kronos/src/ogcservice"
 	"strconv"
 
@@ -47,7 +46,6 @@ func main() {
 
 	r.GET("/getlayer", func(c *gin.Context) {
 		layerIDParam := c.Query("id")
-		fmt.Printf("%v\n", layerIDParam)
 		layerID, _ := strconv.Atoi(layerIDParam)
 		c.JSON(200, lm.GetLayerContent(layerID))
 	})
@@ -59,9 +57,6 @@ func main() {
 
 			c.JSON(200, gin.H{
 				"status": "SUCCESS",
-				"op":     req.Op,
-				"layer":  req.LayerID,
-				"feat":   req.Feat,
 			})
 		} else {
 			c.JSON(400, gin.H{"status": "FAILED"})

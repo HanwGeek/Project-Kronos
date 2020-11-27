@@ -1,7 +1,6 @@
 package geom
 
 import (
-	"fmt"
 	"encoding/json"
 )
 
@@ -16,14 +15,15 @@ func NewFeatureByGeom(geom_ Geometry) *Feature {
 	return &Feature{-1, geom_, make(map[string]interface{})}
 }
 
-func NewFeatureFromJSON(json_ string) *Feature {
-	var m map[string]interface{}
-	err := json.Unmarshal([]byte(json_), &m)
-	if err != nil {
-		fmt.Println("err = ", err)
-		return nil
-	}
+func NewFeatureFromJSON(json_ map[string]interface{}) *Feature {
+	// var m map[string]interface{}
+	// err := json.Unmarshal([]byte(json_), &m)
+	// if err != nil {
+	// 	fmt.Println("err = ", err)
+	// 	return nil
+	// }
 
+	m := json_
 	var feat_temp Feature
 	switch geom_ := m["geometry"].(type) {
 	case map[string]interface{}:
