@@ -50,6 +50,7 @@ import { Stroke, Style } from 'ol/style'
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
 import { OSM, Vector as VectorSource } from 'ol/source'
 import { Draw, Modify, Snap, Select } from 'ol/interaction'
+import shp from 'shpjs'
 // import { platformModifierKeyOnly } from 'ol/events/condition'
 
 //import qs from 'qs';
@@ -64,6 +65,7 @@ export default {
       map: null,
       layers: [],
       mapLayers: [],
+      styles: [],
       layerCnt: 0,
       metadata: null,
       tmpLayer: null,
@@ -85,7 +87,7 @@ export default {
       f: null,
       data_Projection: null,
       op: null,
-      surl: 'http://162.105.17.227:8088/',
+      surl: 'http://localhost:8088/',
     }
   },
   created() {
@@ -94,6 +96,7 @@ export default {
         this.loadLayer(idx)
         this.mapLayers[idx] = this.wfsLayer
         this.map.addLayer(this.wfsLayer)
+        this.styles.push('#000000')
         this.layers[idx].visible = true
       } else {
         this.layers[idx].visible = !this.layers[idx].visible
@@ -114,6 +117,46 @@ export default {
         this.map.removeInteraction(this.modify)
         this.save()
       }
+    })
+
+    this.$bus.$on('show-osm', (show) => {
+      this.osmLayer.setVisible(show)
+    })
+
+    this.$bus.$on('add-layer-data', (data) => {
+      shp(data)
+        .then((x) => {
+          var newLayer = new VectorLayer({
+            source: new VectorSource({
+              features: new GeoJSON({
+                featureProjection: 'EPSG:4326',
+              }).readFeatures(x),
+            }),
+            style: new Style({
+              stroke: new Stroke({
+                color: '#000000',
+                width: 2,
+              }),
+            }),
+          })
+          this.map.addLayer(newLayer)
+        })
+        .catch((e) => console.log('error', e))
+    })
+
+    this.$bus.$on('get-color', (idx) => {
+      this.$bus.$emit('send-color', this.styles[idx])
+    })
+
+    this.$bus.$on('set-color', (param) => {
+      this.mapLayers[param[0]].setStyle(
+        new Style({
+          stroke: new Stroke({
+            color: param[1],
+            width: 2,
+          }),
+        })
+      )
     })
   },
   mounted() {
@@ -153,9 +196,10 @@ export default {
         source: new OSM(),
       })
 
+      this.osmLayer.setVisible(false)
       this.map = new Map({
         controls: [],
-        layers: [],
+        layers: [this.osmLayer],
         target: 'map',
         view: new OpenLayersView({
           projection: 'CRS:84',
@@ -175,7 +219,7 @@ export default {
         source: wfsSource,
         style: new Style({
           stroke: new Stroke({
-            color: 'rgba(22, 59, 64, 1.0)',
+            color: '#000000',
             width: 2,
           }),
         }),
@@ -209,7 +253,6 @@ export default {
       this.select = new Select()
       this.select.on('select', (e) => {
         this.modifyFeatures.push(e.selected[0])
-        console.log(this.modifyFeatures)
       })
       this.map.addInteraction(this.select)
       this.selectedFeatures = this.select.getFeatures()
@@ -291,7 +334,7 @@ export default {
           source: new VectorSource(),
           style: new Style({
             stroke: new Stroke({
-              color: 'rgba(22, 59, 64, 1.0)',
+              color: '#000000',
               width: 2,
             }),
           }),

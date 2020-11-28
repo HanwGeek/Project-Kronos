@@ -33,8 +33,34 @@
                 </v-icon>
               </v-btn>
             </v-list-item-action>
+
             <v-list-item-title v-text="layer.name"></v-list-item-title>
 
+            <v-list-item-action>
+              <v-dialog width="300" v-model="settingDlg">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn v-bind="attrs" @click="editSetting(i)" v-on="on" icon>
+                    <v-icon>
+                      mdi-cog-outline
+                    </v-icon>
+                  </v-btn>
+                </template>
+
+                <v-card>
+                  <v-color-picker v-model="color" show-swatches>
+                  </v-color-picker>
+
+                  <v-divider></v-divider>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" text @click="acceptSetting">
+                      Accept
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-list-item-action>
             <v-list-item-action>
               <v-btn @click="changeEdit(i)" icon>
                 <v-icon color="blue darken-2" v-if="layer.edit">
@@ -53,25 +79,27 @@
     <v-app-bar short app>
       <v-toolbar-title>KRONOS</v-toolbar-title>
 
-      <!-- <a id='avatar' href='https://hanwgeek.github.io/'>
-          <img :src='avatar_wang'>
-        </a>
-        <a id='avatar_2' href='#'>
-          <img :src='ava_chang'>
-        </a>
-        <a id='avatar_3' href='#'>
-          <img :src='ava_yin'>
-        </a>
-        <a id='avatar_4' href='#'>
-          <img :src='ava_guo'>
-        </a> -->
+      <v-spacer></v-spacer>
+      <v-btn @click="upload" icon>
+        <v-icon>
+          mdi-cloud-upload
+        </v-icon>
+      </v-btn>
+      <input type="file" id="uploader" ref="uploader" @change="changeFile" />
+      <v-btn @click="showOsm" icon>
+        <v-icon color="blue darken-2" v-if="osmShow">
+          mdi-map
+        </v-icon>
+        <v-icon v-else>
+          mdi-map
+        </v-icon></v-btn
+      >
     </v-app-bar>
   </div>
 </template>
 
 <script>
 // import SideBar from "@/components/sidebar"
-
 export default {
   name: 'NavHeader',
   components: {
@@ -81,14 +109,18 @@ export default {
     return {
       drawer: null,
       show: false,
+      curIdx: null,
+      settingDlg: false,
+      color: null,
+      ccolor: null,
+      setting: {
+        color: null,
+      },
+      osmShow: false,
       selected: null,
       layers: [],
       title: 'KRONOS',
       avatar: require('../assets/greek.jpeg'),
-      avatar_wang: require('../assets/wang.jpeg'),
-      ava_guo: require('../assets/guo.jpg'),
-      ava_yin: require('../assets/yin.jpg'),
-      ava_chang: require('../assets/chang.jpg'),
     }
   },
   created() {
@@ -105,6 +137,9 @@ export default {
         }
       })
     })
+    this.$bus.$on('send-color', (c) => {
+      this.color = c
+    })
   },
   methods: {
     changeVisible(idx) {
@@ -114,6 +149,36 @@ export default {
     changeEdit(idx) {
       this.layers[idx].edit = !this.layers[idx].edit
       this.$bus.$emit('change-edit', idx)
+    },
+    showOsm() {
+      this.osmShow = !this.osmShow
+      this.$bus.$emit('show-osm', this.osmShow)
+    },
+    editSetting(idx) {
+      this.curIdx = idx
+      this.$bus.$emit('get-color', idx)
+    },
+    acceptSetting() {
+      this.settingDlg = false
+      this.$bus.$emit('set-color', [this.curIdx, this.color])
+    },
+    upload() {
+      this.$refs.uploader.click()
+    },
+    changeFile(e) {
+      const fileToArrayBuffer = (file) =>
+        new Promise((resolve, reject) => {
+          var reader = new FileReader()
+          reader.onload = () => {
+            resolve(reader.result)
+          }
+          reader.onerror = reject
+          reader.readAsArrayBuffer(file)
+        })
+
+      fileToArrayBuffer(e.target.files[0]).then((data) => {
+        this.$bus.$emit('add-layer-data', data)
+      })
     },
   },
 }
@@ -138,33 +203,15 @@ export default {
   vertical-align: center;
 }
 
+#uploader {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+}
+
 .float {
   position: relative;
   left: 10px;
   z-index: 100;
-}
-
-#avatar img {
-  right: 15px;
-  height: 35px;
-  border-radius: 50%;
-}
-#avatar_2 img {
-  position: fixed;
-  right: 65px;
-  height: 35px;
-  border-radius: 50%;
-}
-#avatar_3 img {
-  position: fixed;
-  right: 115px;
-  height: 35px;
-  border-radius: 50%;
-}
-#avatar_4 img {
-  position: fixed;
-  right: 165px;
-  height: 35px;
-  border-radius: 50%;
 }
 </style>
