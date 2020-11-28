@@ -113,8 +113,6 @@ export default {
         this.enableEdit = false
         this.map.removeInteraction(this.modify)
         this.save()
-        //默认当不再编辑直接进行保存/Post数据
-        // this.Post_data(this.op, this.metadata['layer'][idx].name)
       }
     })
   },
@@ -188,23 +186,16 @@ export default {
       this.enableModify()
     },
     save() {
-      // this.f = this.feature_to_save[0].getGeometry();
-
       const format = new GeoJSON({ featureProjection: 'EPSG:4326' })
-
-      //const blob = new Blob([json_data], {type: ''});
-      //FileSaver.saveAs(blob,'1.json');
 
       this.$http({
         url: this.surl + 'post',
         method: 'post',
         //发送格式为json
         data: {
-          op: 1,
-          Layer_id: this.curIdx,
-          geojson: JSON.stringify(
-            format.writeFeaturesObject(this.modifyFeatures)
-          ),
+          op: 2,
+          layer_id: this.curIdx,
+          feats: format.writeFeaturesObject(this.modifyFeatures),
         },
 
         //headers: {'Content-Type':'application/x-www-form-urlencoded'}
@@ -217,8 +208,8 @@ export default {
       //实现鼠标点击选择
       this.select = new Select()
       this.select.on('select', (e) => {
-        // console.log(e.selected[0])
         this.modifyFeatures.push(e.selected[0])
+        console.log(this.modifyFeatures)
       })
       this.map.addInteraction(this.select)
       this.selectedFeatures = this.select.getFeatures()
@@ -336,10 +327,6 @@ export default {
       })
       this.map.addInteraction(this.draw)
     },
-
-    Get_data() {},
-
-    //保存修改过后的要素
     postData(_op, _layer_id) {
       const format = new GeoJSON({ featureProjection: 'EPSG:4326' })
 
