@@ -65,6 +65,7 @@ export default {
       map: null,
       layers: [],
       mapLayers: [],
+      features: [],
       styles: [],
       layerCnt: 0,
       metadata: null,
@@ -143,12 +144,27 @@ export default {
         })
         .catch((e) => console.log('error', e))
     })
-
+    this.$bus.$on('get-attr', (idx) => {
+      const keys = Object.keys(this.layers[idx].prop)
+      let feats = this.mapLayers[idx]
+        .getSource()
+        .getFeatures()
+        .map((o) => {
+          let ret = {}
+          ret['id'] = o.getId()
+          for (let i in keys) {
+            ret[keys[i]] = o.get(keys[i])
+          }
+          return ret
+        })
+      this.$bus.$emit('send-attr', feats)
+    })
     this.$bus.$on('get-color', (idx) => {
       this.$bus.$emit('send-color', this.styles[idx])
     })
 
     this.$bus.$on('set-color', (param) => {
+      this.styles[param[0]] = param[1]
       this.mapLayers[param[0]].setStyle(
         new Style({
           stroke: new Stroke({
@@ -175,6 +191,7 @@ export default {
             name: o.LayerName,
             cnt: o.Count,
             type: o.Type,
+            prop: JSON.parse(o.AttrInfo),
             show: false,
             edit: false,
           }
@@ -190,6 +207,9 @@ export default {
             return null
           }
         )
+        this.features = Array.apply(null, Array(this.layerCnt)).map(function() {
+          return null
+        })
       })
 
       this.osmLayer = new TileLayer({
@@ -215,6 +235,7 @@ export default {
         strategy: bboxStrategy,
       })
 
+      this.features[idx] = wfsSource.getFeatures()
       this.wfsLayer = new VectorLayer({
         source: wfsSource,
         style: new Style({
@@ -242,7 +263,6 @@ export default {
           feats: format.writeFeaturesObject(this.modifyFeatures),
         },
 
-        //headers: {'Content-Type':'application/x-www-form-urlencoded'}
         headers: { 'Content-Type': 'application/json; charset=UTF-8' },
       })
     },

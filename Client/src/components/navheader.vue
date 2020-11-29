@@ -2,7 +2,7 @@
   <div id="header">
     <v-navigation-drawer
       v-model="drawer"
-      :width="show ? 256 : 56"
+      :width="show ? 300 : 56"
       permanent
       expand-on-hover
       app
@@ -36,7 +36,37 @@
 
             <v-list-item-title v-text="layer.name"></v-list-item-title>
 
-            <v-list-item-action>
+            <!-- <v-spacer></v-spacer> -->
+            <v-list-item-action class="px-md-6">
+              <v-dialog width="300" v-model="attrDlg">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn v-bind="attrs" @click="getAttr(i)" v-on="on" icon>
+                    <v-icon>
+                      mdi-table
+                    </v-icon>
+                  </v-btn>
+                </template>
+
+                <v-card>
+                  <v-data-table
+                    :items="attr"
+                    :headers="headers"
+                    :items-per-page="5"
+                    dense
+                  ></v-data-table>
+
+                  <!-- <v-divider></v-divider> -->
+
+                  <!-- <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" text @click="acceptSetting">
+                      Accept
+                    </v-btn>
+                  </v-card-actions> -->
+                </v-card>
+              </v-dialog>
+            </v-list-item-action>
+            <v-list-item-action class="px-md-2">
               <v-dialog width="300" v-model="settingDlg">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" @click="editSetting(i)" v-on="on" icon>
@@ -61,7 +91,7 @@
                 </v-card>
               </v-dialog>
             </v-list-item-action>
-            <v-list-item-action>
+            <v-list-item-action class="px-md-2">
               <v-btn @click="changeEdit(i)" icon>
                 <v-icon color="blue darken-2" v-if="layer.edit">
                   mdi-pencil
@@ -112,10 +142,12 @@ export default {
       curIdx: null,
       settingDlg: false,
       color: null,
-      ccolor: null,
       setting: {
         color: null,
       },
+      attrDlg: false,
+      attr: [],
+      headers: [],
       osmShow: false,
       selected: null,
       layers: [],
@@ -137,6 +169,18 @@ export default {
         }
       })
     })
+    this.$bus.$on('send-attr', (prop) => {
+      this.attr = prop
+      this.headers = []
+      const keys = Object.keys(prop[0])
+      for (let i in keys) {
+        this.headers.push({
+          text: keys[i],
+          value: keys[i],
+          align: 'center',
+        })
+      }
+    })
     this.$bus.$on('send-color', (c) => {
       this.color = c
     })
@@ -153,6 +197,9 @@ export default {
     showOsm() {
       this.osmShow = !this.osmShow
       this.$bus.$emit('show-osm', this.osmShow)
+    },
+    getAttr(idx) {
+      this.$bus.$emit('get-attr', idx)
     },
     editSetting(idx) {
       this.curIdx = idx

@@ -4,6 +4,7 @@ import axios from 'axios'
 import x2js from 'x2js'
 import router from './router'
 import Vuetify from 'vuetify'
+import _ from 'lodash'
 import 'vuetify/dist/vuetify.min.css'
 import '@mdi/font/css/materialdesignicons.css'
 // import ElementUI from 'element-ui'
@@ -15,6 +16,7 @@ Vue.use(Vuetify);
 Vue.prototype.$http = axios;
 Vue.prototype.$bus = new Vue();
 Vue.prototype.$x2js = new x2js();
+Vue.prototype._ = _
 
 new Vue({
   router,
