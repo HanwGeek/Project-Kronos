@@ -6,13 +6,20 @@ import (
 
 // LayerManager manage layers in memory
 type LayerManager struct {
-	layers   map[int]*geom.Layer
-	layerIDs []int
+	layers map[int]*geom.Layer
+	cache  map[int]*LayerCache
+}
+
+type LayerCache struct {
+	add    []*geom.Feature
+	edit   []*geom.Feature
+	delete []int
 }
 
 func NewManager() *LayerManager {
 	return &LayerManager{
 		layers: make(map[int]*geom.Layer),
+		cache:  make(map[int]*LayerCache),
 	}
 }
 
@@ -48,13 +55,20 @@ func (lm *LayerManager) OperOnLayer(OpID int, LayerID int, Feat map[string]inter
 
 func (lm *LayerManager) AddFeatureToLayer(LayerID int, feats []interface{}) {
 	for _, feat := range feats {
-		lm.layers[LayerID].AddFeature(*geom.NewFeatureFromJSON(feat.(map[string]interface{})))
+		newFeat := geom.NewFeatureFromJSON(feat.(map[string]interface{}))
+		lm.layers[LayerID].AddFeature(*newFeat)
+		lm.cache[LayerID].add = append(lm.cache[LayerID].add, newFeat)
 	}
 }
 
 func (lm *LayerManager) EditFeatureToLayer(LayerID int, feats []interface{}) {
 	for _, feat := range feats {
-		feat_ := feat.(map[string]interface{})
-		lm.layers[LayerID].ReplaceFeature(int(feat_["id"].(float64)), *geom.NewFeatureFromJSON(feat_))
+		newFeat := geom.NewFeatureFromJSON(feat.(map[string]interface{}))
+		lm.layers[LayerID].ReplaceFeature(newFeat.GetID(), *newFeat)
+		lm.cache[LayerID].edit = append(lm.cache[LayerID].edit, newFeat)
 	}
+}
+
+func (lm *LayerManager) DumpToDatabase(LayerID int) {
+
 }

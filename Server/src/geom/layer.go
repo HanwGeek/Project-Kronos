@@ -24,7 +24,7 @@ func NewLayerfromGeoJSON(json_ string, id_ int) *Layer {
 	var m map[string]interface{}
 	err := json.Unmarshal([]byte(json_), &m)
 	if err != nil {
-		fmt.Println("err = ", err)
+		fmt.Printf("err = %v", err)
 		return nil
 	}
 

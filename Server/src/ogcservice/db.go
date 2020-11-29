@@ -25,7 +25,7 @@ type LayerInfo struct {
 	LayerName string `pg:"layer_name"`
 	Type      int    `pg:"type"`
 	Count     int    `pg:"count"`
-	//Attributes string   `pg:"attributes"`
+	AttrInfo  string `pg:"attr_info"`
 	//Wkt        string   `pg:"wkt"`
 }
 
@@ -433,7 +433,7 @@ func UpdateLayer(layer geom.Layer) {
 // GetLayerInfo return all layers' metadata.
 func GetLayerInfo() []LayerInfo {
 	var model []LayerInfo
-	err := db.Model(&model).Select()
+	err := db.Model(&model).Order("layer_id ASC").Select()
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 		return nil
@@ -471,5 +471,6 @@ func GetFeatInfoById(layerId int, featId int) FeatInfo {
 		fmt.Printf("error: %v\n", err)
 		//return nil
 	}
+
 	return model
 }
