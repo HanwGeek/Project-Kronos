@@ -49,9 +49,9 @@ import { bbox as bboxStrategy } from 'ol/loadingstrategy'
 import { Stroke, Fill, Style } from 'ol/style'
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
 import { OSM, Vector as VectorSource } from 'ol/source'
-import { Draw, Modify, Snap, Select } from 'ol/interaction'
+import { Draw, Modify, DragBox, Select } from 'ol/interaction'
+import { platformModifierKeyOnly } from 'ol/events/condition'
 import shp from 'shpjs'
-// import { platformModifierKeyOnly } from 'ol/events/condition'
 
 //import qs from 'qs';
 //import FileSaver from 'file-saver';
@@ -116,6 +116,7 @@ export default {
         this.layers[idx].edit = false
         this.enableEdit = false
         this.map.removeInteraction(this.modify)
+        this.map.removeInteraction(this.dragBox)
         this.save()
       }
     })
@@ -138,8 +139,22 @@ export default {
                 color: '#000000',
                 width: 2,
               }),
+              fill: new Fill({
+                color: 'transparent',
+              }),
             }),
           })
+          this.layers.push({
+            id: this.layers.length,
+            name: 'tmpLayer',
+            cnt: 0,
+            type: 0,
+            prop: null,
+            show: false,
+            edit: false,
+          })
+          newLayer.setVisible(false)
+          this.mapLayers.push(newLayer)
           this.map.addLayer(newLayer)
         })
         .catch((e) => console.log('error', e))
@@ -280,45 +295,47 @@ export default {
       this.map.addInteraction(this.select)
       this.selectedFeatures = this.select.getFeatures()
 
-      //鼠标框选(ctrl+拖动)
-      // this.dragBox = new DragBox({
-      //   condition: platformModifierKeyOnly,
-      // })
-      // this.map.addInteraction(this.dragBox)
+      // 鼠标框选(ctrl + 拖动)
+      this.dragBox = new DragBox({
+        condition: platformModifierKeyOnly,
+        className: 'ol-dragbox',
+      })
 
-      // this.dragBox.on('boxend', () => {
-      //   // 视图没有进行旋转变化时，框选范围可以视为和实际范围一致，因此矢量要素和框选相交时可以视为被选中
-      //   var rotation = this.map.getView().getRotation()
-      //   var oblique = rotation % (Math.PI / 2) !== 0
-      //   var candidateFeatures = oblique ? [] : this.selectedFeatures
-      //   var extent = this.dragBox.getGeometry().getExtent()
+      this.map.addInteraction(this.dragBox)
 
-      //   this.mapLayers[this.curIdx]
-      //     .getSource()
-      //     .forEachFeatureIntersectingExtent(extent, function(feature) {
-      //       candidateFeatures.push(feature)
-      //     })
+      this.dragBox.on('boxend', () => {
+        // 视图没有进行旋转变化时，框选范围可以视为和实际范围一致，因此矢量要素和框选相交时可以视为被选中
+        var rotation = this.map.getView().getRotation()
+        var oblique = rotation % (Math.PI / 2) !== 0
+        var candidateFeatures = oblique ? [] : this.selectedFeatures
+        var extent = this.dragBox.getGeometry().getExtent()
 
-      //   // 如果视图存在旋转变化，需要先把方框和要素同时旋转
-      //   if (oblique) {
-      //     var anchor = [0, 0]
-      //     var geometry = this.dragBox.getGeometry().clone()
-      //     geometry.rotate(-rotation, anchor)
-      //     var extent$1 = geometry.getExtent()
-      //     candidateFeatures.forEach(function(feature) {
-      //       var geometry = feature.getGeometry().clone()
-      //       geometry.rotate(-rotation, anchor)
-      //       if (geometry.intersectsExtent(extent$1)) {
-      //         this.selectedFeatures.push(feature)
-      //       }
-      //     })
-      //   }
-      // })
+        this.mapLayers[this.curIdx]
+          .getSource()
+          .forEachFeatureIntersectingExtent(extent, function(feature) {
+            candidateFeatures.push(feature)
+          })
 
-      //点击、绘制新的方框时清空选择列表
-      // this.dragBox.on('boxstart', () => {
-      //   this.selectedFeatures.clear()
-      // })
+        // 如果视图存在旋转变化，需要先把方框和要素同时旋转
+        if (oblique) {
+          var anchor = [0, 0]
+          var geometry = this.dragBox.getGeometry().clone()
+          geometry.rotate(-rotation, anchor)
+          var extent$1 = geometry.getExtent()
+          candidateFeatures.forEach(function(feature) {
+            var geometry = feature.getGeometry().clone()
+            geometry.rotate(-rotation, anchor)
+            if (geometry.intersectsExtent(extent$1)) {
+              this.selectedFeatures.push(feature)
+            }
+          })
+        }
+      })
+
+      // 点击、绘制新的方框时清空选择列表
+      this.dragBox.on('boxstart', () => {
+        this.selectedFeatures.clear()
+      })
     },
     enableModify() {
       //创建一个Modify控件，指定source参数来指定可以对哪些地图源进行图形编辑，这里仅允许对选中的对象进行编辑
@@ -410,44 +427,6 @@ export default {
         headers: { 'Content-Type': 'application/json; charset=UTF-8' },
       })
     },
-
-    //地图增加绘制与拖动控件
-    AddInteraction() {
-      if (this.type != 'None') {
-        var typeChosen = this.type
-        var geometryFunction
-        switch (this.type) {
-          // 生成规则的四边形的图形函数
-          case 'Square':
-            typeChosen = 'Circle'
-            geometryFunction = Draw.createRegularPolygon(4)
-            break
-          // 生成盒状图形函数
-          case 'Box':
-            typeChosen = 'Circle'
-            geometryFunction = Draw.createBox()
-            break
-          default:
-            break
-        }
-
-        //初始化Draw绘图控件
-        this.draw = new Draw({
-          source: this.sourceChosen,
-          type: typeChosen,
-          geometryFunction: geometryFunction,
-        })
-
-        //将Draw控件加入地图
-        this.map.addInteraction(this.draw)
-
-        //初始化Snap控件
-        this.snap = new Snap({
-          source: this.sourceChosen,
-        })
-        this.map.addInteraction(this.snap)
-      }
-    },
   },
 }
 </script>
@@ -457,11 +436,13 @@ export default {
   width: 100%;
   height: 800px;
   left: 0;
-  z-index: 5;
+  /* z-index: 5; */
 }
-#ol-dragbox {
-  background-color: rgba(255, 255, 255, 0.4);
+
+.ol-dragbox {
+  background-color: rgba(0, 0, 0, 1);
   border-color: rgba(100, 150, 0, 1);
+  z-index: 100;
 }
 
 .tool-panel {

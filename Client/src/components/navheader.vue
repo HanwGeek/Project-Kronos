@@ -226,6 +226,12 @@ export default {
       fileToArrayBuffer(e.target.files[0]).then((data) => {
         this.$bus.$emit('add-layer-data', data)
       })
+
+      this.layers.push({
+        name: e.target.files[0].name,
+        show: false,
+        edit: false,
+      })
     },
   },
 }
