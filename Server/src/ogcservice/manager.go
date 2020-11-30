@@ -8,6 +8,8 @@ import (
 type LayerManager struct {
 	layers map[int]*geom.Layer
 	cache  map[int]*LayerCache
+	queue  []int
+	cap    int
 }
 
 type LayerCache struct {
@@ -20,6 +22,7 @@ func NewManager() *LayerManager {
 	return &LayerManager{
 		layers: make(map[int]*geom.Layer),
 		cache:  make(map[int]*LayerCache),
+		cap:    5,
 	}
 }
 
@@ -37,13 +40,43 @@ func (lm *LayerManager) GetLayerContent(layerID int) map[string]interface{} {
 
 	// Load layer
 	layer := GetLayerById(layerID)
-	lm.layers[layerID] = &layer
 
+	if len(lm.layers) >= lm.cap {
+		// Dump layer
+		dump := lm.queue[0]
+		lm.DumpToDatabase(dump)
+		delete(lm.layers, dump)
+		delete(lm.cache, dump)
+		lm.queue = lm.queue[1:]
+		lm.cap--
+	}
+
+	lm.layers[layerID] = &layer
+	lm.queue = append(lm.queue, layerID)
+	lm.cap++
 	return layer.ExportMap()
 }
 
 // OperOnLayer operates `ops` on layer for a `POST` request
 func (lm *LayerManager) OperOnLayer(OpID int, LayerID int, Feat map[string]interface{}) {
+	if _, ok := lm.layers[LayerID]; !ok {
+		// Load layer
+		layer := GetLayerById(LayerID)
+
+		if len(lm.layers) >= lm.cap {
+			// Dump layer
+			dump := lm.queue[0]
+			lm.DumpToDatabase(dump)
+			delete(lm.layers, dump)
+			delete(lm.cache, dump)
+			lm.queue = lm.queue[1:]
+			lm.cap--
+		}
+
+		lm.layers[LayerID] = &layer
+		lm.queue = append(lm.queue, LayerID)
+		lm.cap++
+	}
 	feats := Feat["features"]
 	switch OpID {
 	case 1:
@@ -70,5 +103,15 @@ func (lm *LayerManager) EditFeatureToLayer(LayerID int, feats []interface{}) {
 }
 
 func (lm *LayerManager) DumpToDatabase(LayerID int) {
+	for _, feat := range lm.cache[LayerID].add {
+		AddFeature(LayerID, *feat)
+	}
 
+	for _, feat := range lm.cache[LayerID].edit {
+		UpdateFeature(LayerID, *feat)
+	}
+
+	for _, feat := range lm.cache[LayerID].delete {
+		DelFeature(LayerID, feat)
+	}
 }

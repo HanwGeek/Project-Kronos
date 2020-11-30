@@ -14,6 +14,11 @@ type ReqData struct {
 	Feat    interface{} `json:"feats"`
 }
 
+type LayerData struct {
+	Type int         `json:"type"`
+	Data interface{} `json:"layer"`
+}
+
 func main() {
 	ogcservice.Connect()
 
@@ -50,6 +55,9 @@ func main() {
 		c.JSON(200, lm.GetLayerContent(layerID))
 	})
 
+	r.POST("/newlayer", func(c *gin.Context) {
+
+	})
 	r.POST("/post", func(c *gin.Context) {
 		var req ReqData
 
