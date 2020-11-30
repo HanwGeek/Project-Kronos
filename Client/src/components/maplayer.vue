@@ -46,7 +46,7 @@ import Map from 'ol/Map'
 import OpenLayersView from 'ol/View'
 import GeoJSON from 'ol/format/GeoJSON'
 import { bbox as bboxStrategy } from 'ol/loadingstrategy'
-import { Stroke, Style } from 'ol/style'
+import { Stroke, Fill, Style } from 'ol/style'
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
 import { OSM, Vector as VectorSource } from 'ol/source'
 import { Draw, Modify, Snap, Select } from 'ol/interaction'
@@ -242,6 +242,9 @@ export default {
           stroke: new Stroke({
             color: '#000000',
             width: 2,
+          }),
+          fill: new Fill({
+            color: 'transparent',
           }),
         }),
       })
